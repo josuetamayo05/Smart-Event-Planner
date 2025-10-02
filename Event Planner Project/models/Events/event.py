@@ -30,7 +30,6 @@ class Event:
         self.list_hours.add(date.startDate.hour),self.list_hours.add(date.endDate.hour)
 
 
-
     def search_disponible_dates(self):
         cur=[]
         for hour in range(self.start_event.hour, self.end_event.hour):

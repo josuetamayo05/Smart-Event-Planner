@@ -1,4 +1,4 @@
-from models.event import Event
+from models.Events.event import Event
 from datetime import time
 class EventManager:
     CirugiasProgramadas = Event("Cirugias Programadas",
