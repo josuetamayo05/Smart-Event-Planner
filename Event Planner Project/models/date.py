@@ -1,6 +1,11 @@
 from datetime import time
 class Date:
-    def __init__(self, description:str ,startDate:time, endDate:time):
-        self.startDate = startDate
-        self.endDate = endDate
+    def __init__(self, pacient_name:str, description:str ,start_date:time, end_date:time):
+        self.start_date = start_date
+        self.end_date = end_date
         self.description = description
+        self.pacient_name = pacient_name
+
+
+
+

@@ -1,5 +1,8 @@
 from enum import Enum
 
+from models.Events.event import Event
+
+
 class Specialty(Enum):
     CIRUJANO="Cirujano"
     ANESTESIOLOGO= "Anestesiologo"
@@ -22,6 +25,11 @@ class Worker:
         self.work_schedule = work_schedule
         self.available=True
         self.events_assign=[]
+
+    def add_event(self, event:Event):
+        if self.isAvailable(event.start_event, event.end_event):
+            self.events_assign.append(event)
+
     def isAvailable(self,start,end):
         if self.work_schedule[0]<start or self.work_schedule[1]>end:
             return False

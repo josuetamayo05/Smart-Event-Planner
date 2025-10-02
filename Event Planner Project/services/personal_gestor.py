@@ -7,25 +7,24 @@ class PersonalGestor:
     def __init__(self, archive_data="data/personal.json"):
         self.archive_data = archive_data
         self.workes=[]
-        self.loading_data()
-        self.save_data()
-        self._ensure_data_directory()
+        self.load_data()
 
-    def loading_data(self):
+    def load_data(self):
         try:
             with open(self.archive_data,"r",encoding='utf-8') as f:
                 data = json.load(f)
-                self.workes = data['workes']
+                self.workes = [self.dict_to_worker(w) for w in data['workes']]
         except FileNotFoundError:
             self.workes=[]
 
     def save_data(self):
-        data=[self.worker_to_dict(t) for t in self.workes]
+        os.makedirs(os.path.dirname(self.archive_data),exist_ok=True)
+        data={"workes":[self.worker_to_dict(t) for t in self.workes]}
         with open(self.archive_data,"w",encoding='utf-8') as f:
             json.dump(data,f,indent=2,ensure_ascii=False)
 
-    def add_worker(self,name:str, specialty:Specialty,shift:Shift,work_shedule:tuple):
-        worker=Worker(name,specialty,shift,work_shedule)
+    def add_worker(self,name:str, specialty:Specialty,shift:Shift,work_schedule:tuple):
+        worker=Worker(name,specialty,shift,work_schedule)
         self.workes.append(worker)
         self.save_data()
         return worker
@@ -64,6 +63,4 @@ class PersonalGestor:
         ]
         self.save_data()
 
-if __name__ == "__main__":
-    personal=PersonalGestor()
-    personal.create_example()
+
