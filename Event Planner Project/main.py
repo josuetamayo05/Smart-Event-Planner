@@ -12,6 +12,6 @@ def main():
     MainWindow(window)
 
 if __name__ == '__main__':
-    help(tk)
+    main()
 
 
