@@ -1,4 +1,6 @@
 import tkinter as tk
+from tkinter import *
+from tkinter import ttk
 from services.workes import Worker, Specialty, Shift
 from ui.main_window import MainWindow
 from models.Events.event import *
@@ -9,9 +11,8 @@ from services import *
 
 def main():
     window=tk.Tk()
-    MainWindow(window)
+
 
 if __name__ == '__main__':
-    main()
-
+    pass
 
