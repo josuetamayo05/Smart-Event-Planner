@@ -79,7 +79,7 @@ class MainWindow:
         self.phone_ent=Entry(self.left,width=80)
         self.phone_ent.place(x=250,y=215)
 
-        events = [
+        self.events = [
             "Anestesiología",
             "Cirugía General",
             "Pediatría",
@@ -150,14 +150,15 @@ class MainWindow:
             "Epidemiología",
             "Medicina Tropical"
         ]
-        self.combo_events=Combobox(self.left,values=events)
+
+        self.combo_events=Combobox(self.left,values=self.events)
         self.combo_events.place(x=250,y=250)
 
         self.date_ent = Entry(self.left, width=80)
         self.date_ent.place(x=250, y=285)
 
-        genners=["Masculino","Femenino"]
-        self.combo_gen=Combobox(self.left,values=genners)
+        self.genners=["Masculino","Femenino"]
+        self.combo_gen=Combobox(self.left,values=self.genners)
         self.combo_gen.place(x=250,y=350)
 
         def select_date():
@@ -204,6 +205,7 @@ class MainWindow:
         self.box.place(x=20,y=60)
         self.box.insert(END,"Total inscripciones:  " + str(self.final_id))
 
+
     def add_data(self):
         self.val1=self.name_ent.get()
         self.val2=self.age_ent.get()
@@ -213,8 +215,25 @@ class MainWindow:
         self.val6=self.date_ent.get()
         self.val7=self.combo_gen.get()
 
+
+
         if self.val1=='' or self.val2=='' or self.val3=='' or self.val4=='' or self.val5=='' or self.val6=='' or self.val7=='':
-            tkinter.messagebox.showinfo("Error","Por favor rellene todos los datos seleccionados")
+            tkinter.messagebox.showerror("Error","Por favor rellene todos los datos seleccionados")
+        # elif not self.val4.isdigit():
+        #     tkinter.messagebox.showerror("Error","El número de teléfono debe ser un dígito")
+        # elif 0>int(self.val2) or int(self.val2) > 120:
+        #     tkinter.messagebox.showerror("Error", "Edad incorrecta")
+        # elif not self.val2.isdigit():
+        #     tkinter.messagebox.showerror("Error", "La edad debe ser un dígito")
+        # elif len(self.val4)<8:
+        #     tkinter.messagebox.showerror("Error","El Número de teléfono debe temer al menos 8 digitos")
+        # # elif not self.valid_date(self.val6):
+        # #     tkinter.messagebox.showerror("Error","Debes rellenar correctamente la fecha")
+        # elif not self.val7 in self.genners:
+        #     tkinter.messagebox.showerror("Error","Debes rellenar correctamente el género")
+        # elif not self.val5 in self.combo_events:
+        #     tkinter.messagebox.showerror("Error","Tipo de Consulta no encontrada")
+
         ## Add to Database
         else:
             sql="INSERT INTO 'appointments' (name, age, location, phone, events, date, genner) VALUES (?, ?, ?, ?, ?, ?, ?)"
@@ -224,9 +243,15 @@ class MainWindow:
 
             self.box.insert(END,' Cita fijada para ' + self.val1 + ' a las  ' + self.val6)
 
+    def valid_date(self, str_date)->bool:
+        try:
+            date_obj = datetime.strptime(str_date, "%d/%m/%Y")
+            return True
+        except ValueError:
+            return False
 
-root=Tk()
-window=MainWindow(root)
-root.geometry("1200x720+0+0")
-root.resizable(False,False)
-root.mainloop()
+appointment=Tk()
+window=MainWindow(appointment)
+appointment.geometry("1200x720+0+0")
+appointment.resizable(True,True)
+appointment.mainloop()

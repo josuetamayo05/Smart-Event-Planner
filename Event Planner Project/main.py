@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import *
 from tkinter import ttk
 from services.workes import Worker, Specialty, Shift
-from ui.main_window import MainWindow
+from ui.appointment import MainWindow
 from models.Events.event import *
 from models.date import Date
 from datetime import time
