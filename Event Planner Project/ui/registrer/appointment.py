@@ -7,6 +7,7 @@ from tkcalendar import Calendar
 import tkinter as tk
 from tkinter import *
 import os
+from ui.principal_window import principal_menu
 
 db_path = '../../data/database.db'
 os.makedirs(os.path.dirname(db_path), exist_ok=True)  # Crear directorio si no existe
@@ -34,7 +35,6 @@ class MainWindow:
     def __init__(self,root):
         self.root=root
         self.root.title("Sistema de Gestion Hospitalaria")
-
         self.left=Frame(root, width=800, height=720,bg='white')
         self.left.pack(side=LEFT)
         self.right=Frame(root, width=400, height=720,bg='steelblue')
@@ -183,14 +183,15 @@ class MainWindow:
         self.button_calendar.place(x=250, y=310)
 
         self.submit=Button(self.left,text="Agregar Datos", font=('arial 12 bold'),fg='black',bg='white',command=self.add_data,height=1,width=20)
-        self.submit.place(x=250, y=450)
+        self.submit.place(x=40, y=450)
 
+        self.out_but=Button(self.left,text="Volver",font=('arial 12 bold'), fg='black',bg='white',command=self.out_window,height=1,width=20)
+        self.out_but.place(x=350, y=450)
         # getting the number of appointments fixed to view in the log
         sql2="SELECT COUNT(*) FROM appointments "
         self.result=c.execute(sql2)
         for self.row in self.result:
             self.count=self.row[0]
-
             ## self.id=self.row[0]
             ## ids.append(self.id)
 
@@ -208,6 +209,11 @@ class MainWindow:
         self.box.place(x=20,y=60)
         self.box.insert(END,"Total inscripciones:  " + str(self.count))
 
+        self.root.mainloop()
+
+    def out_window(self):
+        self.root.destroy()
+        principal_menu.init()
 
     def add_data(self):
         self.val1=self.name_ent.get()
@@ -255,8 +261,12 @@ class MainWindow:
         except ValueError:
             return False
 
-appointment=Tk()
-window=MainWindow(appointment)
-appointment.geometry("1200x720+0+0")
-appointment.resizable(True,True)
-appointment.mainloop()
+
+def init():
+    root = Tk()
+    wind = MainWindow(root)
+    root.geometry("1200x720+0+0")
+    root.resizable(0, 0)
+    root.mainloop()
+
+

@@ -130,9 +130,9 @@ class Update:
         self.ent6.destroy()
         self.ent7.destroy()
 
-
-update=Tk()
-wind=Update(update)
-update.geometry("1200x720+0+0")
-update.resizable(False, False)
-update.mainloop()
+def init():
+    update=Tk()
+    wind=Update(update)
+    update.geometry("1200x720+0+0")
+    update.resizable(False, False)
+    update.mainloop()
