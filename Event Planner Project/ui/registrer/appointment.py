@@ -269,4 +269,5 @@ def init():
     root.resizable(0, 0)
     root.mainloop()
 
+# init()
 

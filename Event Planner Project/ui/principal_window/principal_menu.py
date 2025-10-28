@@ -3,7 +3,7 @@ from PIL import ImageTk, Image
 import tkinter.messagebox
 from ui.registrer import appointment
 from ui.registrer import update
-
+from ui.events_manager import event_manager
 
 class menu_principal:
     def __init__(self, master):
@@ -55,13 +55,21 @@ class menu_principal:
                                 bg='#3047ff', cursor='hand2', activebackground='#3047ff', fg='white',command=self.appointment)
         login.place(x=20, y=10)
 
+        lgn_button=Image.open('../../images/btn1.png')
+        photo=ImageTk.PhotoImage(lgn_button)
+        lgn_button_label_=Label(self.lgn_frame,image=photo,bg='#150220')
+        lgn_button_label_.image=photo
+        lgn_button_label_.place(x=550, y=350)
+        login=Button(lgn_button_label_,text='MANAGE EVENTS', font=("yu gothic ui", 13, "bold"), width=25,
+                     bd=0,bg='#3047ff',cursor='hand2',activebackground='#3047ff',fg='white',command=self.manager_events)
+        login.place(x=20, y=10)
 
         #Sign Out
         lgn_button = Image.open('../../images/btn1.png')
         photo = ImageTk.PhotoImage(lgn_button)
         lgn_button_label_ = Label(self.lgn_frame, image=photo, bg='#150220')
         lgn_button_label_.image = photo
-        lgn_button_label_.place(x=550, y=350)
+        lgn_button_label_.place(x=550, y=450)
         login = Button(lgn_button_label_, text='SIGN OUT', font=("yu gothic ui", 13, "bold"), width=25, bd=0,
                        bg='#3047ff', cursor='hand2', activebackground='#3047ff', fg='white', command=self.sign_out)
         login.place(x=20, y=10)
@@ -75,6 +83,10 @@ class menu_principal:
         appointment.init()
     def sign_out(self):
         self.master.destroy()
+    def manager_events(self):
+        self.master.destroy()
+        event_manager.init()
+
 
 def init():
     root = Tk()

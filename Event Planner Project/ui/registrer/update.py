@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import ttk
 import sqlite3
 import tkinter.messagebox
+from ui.principal_window import principal_menu
 
 conn=sqlite3.connect('../../data/database.db')
 cursor=conn.cursor()
@@ -15,10 +16,10 @@ class Update:
         self.right=Frame(master,width=400,height=720,bg='steelblue')
         self.right.pack(side=RIGHT)
 
-        self.heading=Label(self.left,text="Modificar Citas",fg='steelblue',font=('arial 40 bold'))
+        self.heading=Label(self.left,text="Modificar Citas",fg='steelblue',font=('arial 40 bold'),bg='white')
         self.heading.place(x=150,y=10)
 
-        self.name=Label(self.left,text="Introduzca nombre del paciente a buscar",font=('arial 12 bold'))
+        self.name=Label(self.left,text="Introduzca nombre del paciente a buscar",font=('arial 12 bold'),bg='white')
         self.name.place(x=150,y=150)
 
         self.name_entry=Entry(self.left,width=50)
@@ -26,6 +27,13 @@ class Update:
 
         self.search_buttom=Button(self.left, text="Buscar", command=self.search_db)
         self.search_buttom.place(x=150,y=250)
+
+        self.outwindow=Button(self.left, text="Volver", command=self.out_window)
+        self.outwindow.place(x=210,y=250)
+
+    def out_window(self):
+        self.master.destroy()
+        principal_menu.init()
 
     def search_db(self):
         self.input=self.name_entry.get()
@@ -134,5 +142,5 @@ def init():
     update=Tk()
     wind=Update(update)
     update.geometry("1200x720+0+0")
-    update.resizable(False, False)
+    update.resizable(0, 0)
     update.mainloop()
