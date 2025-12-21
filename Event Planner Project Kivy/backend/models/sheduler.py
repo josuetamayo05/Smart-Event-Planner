@@ -4,9 +4,9 @@ from collections import Counter
 from datetime import datetime, timedelta
 from typing import List, Iterable, Optional
 from backend.database.database_manager import DatabaseManager
-from event import Event
-from resource import Resource
-from constraint import Violation
+from backend.models.event import Event
+from backend.models.resource import Resource
+from backend.models.constraint import Violation
 
 def overlaps(s1:datetime, e1:datetime, s2: datetime, e2:datetime) -> bool:
     return s1<e2 and s2<e1

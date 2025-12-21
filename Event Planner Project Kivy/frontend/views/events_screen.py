@@ -3,7 +3,7 @@ from kivy.properties import StringProperty
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.card import MDCard
 
-class EventsCard(MDCard):
+class EventCard(MDCard):
     tittle= StringProperty("")
     subtitle = StringProperty("")
 

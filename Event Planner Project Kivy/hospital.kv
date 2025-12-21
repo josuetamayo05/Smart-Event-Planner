@@ -1,0 +1,249 @@
+# hospital.kv
+#:kivy 2.2.0
+#:import dp kivy.metrics.dp
+#:import MDFloatLayout kivymd.uix.floatlayout.MDFloatLayout
+#:import MDTabsBase kivymd.uix.tab.MDTabsBase
+
+<Tab@MDFloatLayout+MDTabsBase>:
+
+<ScreensManager>:
+    ScreenManager:
+        id: screen_manager
+
+        DashboardScreen:
+            name: "dashboard"
+
+        EventsScreen:
+            name: "events"
+
+        ResourcesScreen:
+            name: "resources"
+
+        CalendarScreen:
+            name: "calendar"
+
+        ConstraintsScreen:
+            name: "constraints"
+
+        NewEventScreen:
+            name: "new_event"
+
+    MDNavigationDrawer:
+        id: nav_drawer
+        BoxLayout:
+            orientation: "vertical"
+            padding: dp(8)
+            spacing: dp(8)
+
+            MDLabel:
+                text: "Hospital"
+                font_style: "H5"
+                size_hint_y: None
+                height: self.texture_size[1] + dp(16)
+
+            ScrollView:
+                MDList:
+                    OneLineIconListItem:
+                        text: "Dashboard"
+                        on_release:
+                            root.ids.screen_manager.current = "dashboard"
+                            root.ids.nav_drawer.set_state("close")
+                    OneLineIconListItem:
+                        text: "Eventos"
+                        on_release:
+                            root.ids.screen_manager.current = "events"
+                            root.ids.nav_drawer.set_state("close")
+                    OneLineIconListItem:
+                        text: "Recursos"
+                        on_release:
+                            root.ids.screen_manager.current = "resources"
+                            root.ids.nav_drawer.set_state("close")
+                    OneLineIconListItem:
+                        text: "Calendario"
+                        on_release:
+                            root.ids.screen_manager.current = "calendar"
+                            root.ids.nav_drawer.set_state("close")
+                    OneLineIconListItem:
+                        text: "Restricciones"
+                        on_release:
+                            root.ids.screen_manager.current = "constraints"
+                            root.ids.nav_drawer.set_state("close")
+                    OneLineIconListItem:
+                        text: "Tema claro/oscuro"
+                        on_release:
+                            app.toggle_theme_style()
+                    OneLineIconListItem:
+                        text: "Backup"
+                        on_release:
+                            app.db.backup()
+                    OneLineIconListItem:
+                        text: "Guardar ahora"
+                        on_release:
+                            app.db.save_async()
+
+<DashboardScreen>:
+    MDBoxLayout:
+        orientation: "vertical"
+
+        MDTopAppBar:
+            title: "Dashboard"
+            left_action_items: [["menu", lambda x: app.root.ids.nav_drawer.set_state("toggle")]]
+            right_action_items: [["plus", lambda x: app.root.ids.screen_manager.current = "new_event"]]
+
+        MDTabs:
+            on_tab_switch: root.on_tab_switch(*args)
+
+            Tab:
+                text: "Día"
+                MDLabel:
+                    text: "Vista día (por implementar)"
+                    halign: "center"
+
+            Tab:
+                text: "Semana"
+                MDLabel:
+                    text: "Vista semana (por implementar)"
+                    halign: "center"
+
+            Tab:
+                text: "Mes"
+                MDLabel:
+                    text: "Vista mes (por implementar)"
+                    halign: "center"
+
+        MDBoxLayout:
+            orientation: "vertical"
+            padding: dp(8)
+            MDLabel:
+                text: "Eventos de hoy"
+                font_style: "H6"
+                size_hint_y: None
+                height: self.texture_size[1] + dp(8)
+            ScrollView:
+                MDList:
+                    id: today_events_list
+
+<EventsScreen>:
+    MDBoxLayout:
+        orientation: "vertical"
+
+        MDTopAppBar:
+            title: "Eventos"
+            left_action_items: [["menu", lambda x: app.root.ids.nav_drawer.set_state("toggle")]]
+            right_action_items: [["plus", lambda x: app.root.ids.screen_manager.current = "new_event"]]
+
+        MDTextField:
+            id: search_field
+            hint_text: "Buscar por nombre o tipo"
+            size_hint_x: 1
+            on_text: root.on_search_text(self.text)
+
+        RecycleView:
+            id: events_rv
+            viewclass: "EventCard"
+            scroll_type: ["bars", "content"]
+            bar_width: dp(4)
+            RecycleBoxLayout:
+                default_size: None, dp(72)
+                default_size_hint: 1, None
+                size_hint_y: None
+                height: self.minimum_height
+                orientation: "vertical"
+
+<EventCard>:
+    size_hint: 1, None
+    height: dp(72)
+    md_bg_color: app.theme_cls.bg_dark
+    padding: dp(8)
+    radius: [dp(8), dp(8), dp(8), dp(8)]
+    MDBoxLayout:
+        orientation: "vertical"
+        MDLabel:
+            text: root.title
+            font_style: "Subtitle1"
+        MDLabel:
+            text: root.subtitle
+            font_style: "Caption"
+
+<NewEventScreen>:
+    MDBoxLayout:
+        orientation: "vertical"
+
+        MDTopAppBar:
+            title: "Nuevo evento"
+            left_action_items: [["arrow-left", lambda x: app.root.ids.screen_manager.current = "events"]]
+
+        MDBanner:
+            id: validation_banner
+            text: ""
+            over_widget: self.parent
+            vertical_pad: "4dp"
+            icon: "alert-circle-outline"
+            banner_height: "40dp"
+
+        ScrollView:
+            MDBoxLayout:
+                orientation: "vertical"
+                padding: dp(16)
+                spacing: dp(12)
+                size_hint_y: None
+                height: self.minimum_height
+
+                MDTextField:
+                    id: name_field
+                    hint_text: "Nombre del evento"
+                    on_text: root.schedule_validation()
+
+                MDTextField:
+                    id: type_field
+                    hint_text: "Tipo (ej. cirugia_cardiaca)"
+                    on_text: root.schedule_validation()
+
+                MDTextField:
+                    id: description_field
+                    hint_text: "Descripción"
+                    multiline: True
+                    on_text: root.schedule_validation()
+
+                MDBoxLayout:
+                    spacing: dp(8)
+                    MDTextField:
+                        id: date_field
+                        hint_text: "Fecha"
+                        readonly: True
+                        on_focus:
+                            if self.focus: root.open_date_picker()
+                    MDTextField:
+                        id: start_time_field
+                        hint_text: "Hora inicio"
+                        readonly: True
+                        on_focus:
+                            if self.focus: root.open_start_time_picker()
+                    MDTextField:
+                        id: end_time_field
+                        hint_text: "Hora fin"
+                        readonly: True
+                        on_focus:
+                            if self.focus: root.open_end_time_picker()
+
+                MDLabel:
+                    text: "Recursos"
+                    font_style: "Subtitle1"
+                    size_hint_y: None
+                    height: self.texture_size[1] + dp(8)
+
+                ScrollView:
+                    size_hint_y: None
+                    height: dp(120)
+                    MDBoxLayout:
+                        id: resources_chips_box
+                        padding: dp(4)
+                        spacing: dp(4)
+                        size_hint_y: None
+                        height: self.minimum_height
+                        adaptive_height: True
+
+                MDRaisedButton:
+                    text: "GUARDAR"
+                    pos_hint: {"center_x": 0.5}
+                    on_release: root.on_save_button()
