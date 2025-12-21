@@ -102,4 +102,3 @@ def init():
     event.resizable(0, 0)
     event.mainloop()
 
-init()
