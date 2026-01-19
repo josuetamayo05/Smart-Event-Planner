@@ -307,9 +307,12 @@ def main(page: ft.Page):
         t = datetime.strptime(t_str.strip(), "%H:%M").time()
         return datetime.combine(d, t)
     
-    def build_resources_checklist():
+    def build_resources_checklist(preselected=None):
+        preselected=set(preselected or [])
         resources_column.controls.clear()
         selected_resource_ids.clear()
+        selected_resource_ids.update(preselected)
+
         for r in db.list_resources():
             rid=r["id"]
             rname=r.get("name",rid)
@@ -322,18 +325,24 @@ def main(page: ft.Page):
                 quick_validate()
 
             resources_column.controls.append(
-                ft.Checkbox(label=rname, value=False, on_change=on_change)
+                ft.Checkbox(label=rname, value=(rid in preselected), on_change=on_change)
             )
 
     def on_find_slots(_):
         slots_column.controls.clear()
+
+        fixed_ids = list(selected_resource_ids)
+        if not fixed_ids:
+            slots_column.controls.append(ft.Text("Selecciona primero el recurso fijo (ej: Quirófano 1) y vuelve a buscar."))
+            page.update()
+            return
 
         try:
             from_dt = parse_dt(date_tf.value, start_tf.value)
         except Exception:
             snack("Fecha/hora inválidas para iniciar la búsqueda.")
             page.update()
-            return 
+            return
 
         try:
             mins = int((duration_tf.value or "").strip())
@@ -341,53 +350,49 @@ def main(page: ft.Page):
         except Exception:
             snack("Duración inválida (usa minutos, ej 120).")
             page.update()
-            return 
+            return
 
-        roles=[]
-        subtypes=[]
+        event_type = (type_tf.value or "").strip()
 
-        if search_role_tf.value.strip():
-            roles=[search_role_tf.value.strip()]
-
-        if search_subtype_tf.value.strip():
-            subtypes=[search_subtype_tf.value.strip()]
-
-        required_filters={"roles":roles,"subtypes":subtypes}
-
-        results=scheduler.find_next_slots(
-            required_filters=required_filters,
+        # AQUÍ: método autofill
+        results = scheduler.find_next_slots_autofill(
+            fixed_resource_ids=fixed_ids,
+            event_type=event_type,
             duration=duration,
             from_dt=from_dt,
-            max_results=3,  
+            max_results=3,
         )
 
         if not results:
-            slots_column.controls.append(ft.Text("No se encontraron horarios disponibles."))
+            slots_column.controls.append(ft.Text("No se encontraron horarios disponibles con esos recursos."))
             page.update()
-            return 
-        
+            return
+
         def use_slot(slot):
-            # rellena fecha/hora del formulario
             date_tf.value = slot.start.strftime("%Y-%m-%d")
             start_tf.value = slot.start.strftime("%H:%M")
             end_tf.value = slot.end.strftime("%H:%M")
 
-            # selecciona automáticamente recursos del slot (opcional)
-            # Nota: aquí solo rellenamos horarios; seleccionar recursos puede ser más avanzado
+            # Marcar recursos sugeridos (incluye personal)
+            pre = [r.id for r in slot.resources]
+            build_resources_checklist(preselected=pre)
+
             quick_validate()
             page.update()
-            snack("Horario aplicado al formulario.")
-        
+            snack("Horario y recursos aplicados al formulario.")
+
         for slot in results:
+            res_names = ", ".join(r.name for r in slot.resources)
             slots_column.controls.append(
                 ft.Card(
                     ft.Container(
-                        ft.Row(
+                        ft.Column(
                             [
-                                ft.Text(f"{slot.start.strftime('%Y-%m-%d %H:%M')}  →  {slot.end.strftime('%H:%M')}"),
+                                ft.Text(f"{slot.start.strftime('%Y-%m-%d %H:%M')} → {slot.end.strftime('%H:%M')}"),
+                                ft.Text(f"Recursos: {res_names}", size=12),
                                 ft.ElevatedButton("Usar", on_click=lambda e, s=slot: use_slot(s)),
                             ],
-                            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                            spacing=6,
                         ),
                         padding=12,
                     )
@@ -395,7 +400,6 @@ def main(page: ft.Page):
             )
 
         page.update()
-
 
 
     def quick_validate():
@@ -482,20 +486,17 @@ def main(page: ft.Page):
             type_tf,
             ft.Row([date_tf, start_tf, end_tf]),
             validation_text,
+
             ft.Divider(),
-            ft.Text("Búsqueda inteligente", size=16, weight=ft.FontWeight.BOLD),
-            search_role_tf,
-            search_subtype_tf,
+            ft.Text("Recursos (elige aquí el recurso fijo, ej: OR1)", size=16),
+            ft.Container(resources_column, border=ft.border.all(1, ft.Colors.GREY_300), padding=10),
+
+            ft.Divider(),
+            ft.Text("Búsqueda inteligente (autofill)", size=16, weight=ft.FontWeight.BOLD),
             duration_tf,
             ft.ElevatedButton("Buscar próximo horario disponible", on_click=on_find_slots),
             slots_column,
-            ft.Divider(),
-            ft.Text("Recursos", size=16),
-            ft.Container(
-                resources_column,
-                border=ft.border.all(1, ft.Colors.GREY_300),
-                padding=10,
-            ),
+
             ft.ElevatedButton("Guardar", on_click=on_save),
         ],
         scroll=ft.ScrollMode.AUTO,

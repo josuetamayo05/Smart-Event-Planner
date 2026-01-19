@@ -212,3 +212,97 @@ class Scheduler:
             current+=step
 
         return results
+    
+    def find_next_slots_autofill(
+            self,
+            fixed_resource_ids:list[str],
+            event_type:str,
+            duration:timedelta,
+            from_dt:datetime,
+            max_results:int=3,
+            search_horizon_days:int=30,
+            step_minutes:int=15,
+    )->List[CandidateSlot]:
+        
+        fixed_resources=self._resources_by_id(fixed_resource_ids)
+        fixed_ids=[r.id for r in fixed_resources]
+
+        # co-requisitos que se deben cumplir
+        required_roles = Counter()
+        uses_or=any(r.subtype=="quirófano" for r in fixed_resources)
+        if uses_or:
+            required_roles.update({"cirujano":1,"anestesiologo":1,"enfermera":2})
+
+        required_cec = (event_type == "cirujia_cardiaca")
+        step=timedelta(minutes=step_minutes)
+        limit=from_dt+timedelta(days=search_horizon_days)
+
+        all_resources=self._all_resources()
+
+        def pick_free(role: str, qty: int, start: datetime, end: datetime) -> list[Resource]:
+            candidates = [
+                r for r in all_resources
+                if r.kind == "human" and r.role == role and self.is_resource_free(r.id, start, end)
+            ]
+            return candidates[:qty]
+
+        def pick_free_tag(tag: str, start: datetime, end: datetime) -> Optional[Resource]:
+            candidates = [
+                r for r in all_resources
+                if r.kind == "physical" and tag in (r.tags or []) and self.is_resource_free(r.id, start, end)
+            ]
+            return candidates[0] if candidates else None
+        
+        results:List[CandidateSlot]=[]
+        current=from_dt
+
+        while current+duration <= limit and len(results)<max_results:
+            end=current+duration
+
+            # 1) fijos libres
+            if not all(self.is_resource_free(rid, current, end) for rid in fixed_ids):
+                current += step
+                continue
+
+            chosen: list[Resource] = list(fixed_resources)
+
+            # 2) especiales por tipo
+            if required_cec:
+                cec = pick_free_tag("cec", current, end)
+                if not cec:
+                    current += step
+                    continue
+                chosen.append(cec)
+
+                # además un cardiólogo
+                required_roles.update({"cardiologo": 1})
+
+            # 3) humanos requeridos
+            ok = True
+            for role, qty in required_roles.items():
+                picked = pick_free(role, qty, current, end)
+                if len(picked) < qty:
+                    ok = False
+                    break
+                chosen.extend(picked)
+
+            if not ok:
+                current += step
+                continue
+
+            # 4) validar con tus mismas reglas (incluye exclusiones mutuas)
+            dummy = Event(
+                id="__dummy__",
+                name="",
+                description="",
+                event_type=event_type,
+                start=current,
+                end=end,
+                resource_ids=[r.id for r in chosen],
+            )
+            if not self.validate_event(dummy):
+                results.append(CandidateSlot(resources=chosen, start=current, end=end))
+
+            current += step
+        
+        return results
