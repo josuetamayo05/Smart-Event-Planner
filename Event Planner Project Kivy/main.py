@@ -1,62 +1,82 @@
-from __future__ import annotations
-
-import os
-
-import dotenv
 from kivy.lang import Builder
-from kivy.core.window import Window
-from kivy.uix.screenmanager import ScreenManager
-from kivy.utils import platform
-
 from kivymd.app import MDApp
 
-from backend.database.database_manager import DatabaseManager
-from backend.models.sheduler import Sheduler
+# IMPORTS “forzados” para registrar clases (evita Unknown class <...> en KV)
+from kivymd.uix.appbar import MDTopAppBar  # noqa
+from kivymd.uix.navigationdrawer import MDNavigationLayout, MDNavigationDrawer  # noqa
+from kivymd.uix.list import MDListItem, MDListItemHeadlineText  # noqa
 
-from frontend.views.screens_manager import ScreensManager
 
-from frontend.views.dashboard_screen import DashboardScreen
-from frontend.views.events_screen import EventsScreen, EventCard
-from frontend.views.resources_screen import ResourcesScreen
-#from frontend.views.calendar_screen import CalendarScreen
-from frontend.views.constraints_screen import ConstraintsScreen
-from frontend.views.new_event_screen import NewEventScreen
-#from widgets.calendar_widget import DayCalendar
+KV = """
+MDScreen:
+    MDNavigationLayout:
 
-try:
-    from dotenv import load_dotenv
-    load_dotenv()
-except Exception:
-    pass
+        ScreenManager:
+            id: sm
+
+            MDScreen:
+                name: "dashboard"
+                MDBoxLayout:
+                    orientation: "vertical"
+
+                    MDTopAppBar:
+                        title: "Dashboard"
+                        left_action_items: [["menu", lambda x: nav_drawer.set_state("toggle")]]
+
+                    MDLabel:
+                        text: "UI OK"
+                        halign: "center"
+
+            MDScreen:
+                name: "events"
+                MDBoxLayout:
+                    orientation: "vertical"
+
+                    MDTopAppBar:
+                        title: "Eventos"
+                        left_action_items: [["menu", lambda x: nav_drawer.set_state("toggle")]]
+
+                    MDLabel:
+                        text: "Eventos OK"
+                        halign: "center"
+
+        MDNavigationDrawer:
+            id: nav_drawer
+
+            MDBoxLayout:
+                orientation: "vertical"
+                padding: "12dp"
+                spacing: "8dp"
+
+                MDLabel:
+                    text: "Hospital"
+                    font_style: "H5"
+                    size_hint_y: None
+                    height: self.texture_size[1] + dp(10)
+
+                MDList:
+                    MDListItem:
+                        on_release:
+                            sm.current = "dashboard"
+                            nav_drawer.set_state("close")
+                        MDListItemHeadlineText:
+                            text: "Dashboard"
+
+                    MDListItem:
+                        on_release:
+                            sm.current = "events"
+                            nav_drawer.set_state("close")
+                        MDListItemHeadlineText:
+                            text: "Eventos"
+"""
 
 
 class HospitalApp(MDApp):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        db_path=os.getenv("HOSPITAL_DB_PATH", "database.json")
-        self.db = DatabaseManager(db_path)
-        self.sheduler = Sheduler(self.db)
-
     def build(self):
-        self.title = "Planificador Inteligente Hospitalario"
         self.theme_cls.theme_style = "Light"
         self.theme_cls.primary_palette = "Blue"
-        Builder.load_file("hospital.kv")
-        return ScreensManager()
+        return Builder.load_string(KV)
 
-    def toggle_theme_style(self):
-        self.theme_cls.theme_style = (
-            "Dark" if self.theme_cls.theme_style == "Light" else "Light"
-        )
 
-    def on_stop(self):
-        self.db.save()
-
-if __name__=="__main__":
-    if platform in ("linux", "win", "macosx"):
-        Window.size = (1200, 720)
+if __name__ == "__main__":
     HospitalApp().run()
-
-
-
-

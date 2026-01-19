@@ -1,0 +1,8 @@
+{
+  "resource": [],
+  "events": [],
+  "constraints": {
+    "corequisites": [],
+    "mutual_exclusions": []
+  }
+}
