@@ -20,6 +20,163 @@ def main(page: ft.Page):
     selected_index=0
     selected_resource_ids: set[str]=set()
 
+    # calendar
+    calendar_view = ft.Column(spacing=10, scroll=ft.ScrollMode.AUTO)
+    calendar_date = date.today()
+    resource_filter = ""  # "" = todos
+
+    date_picker = ft.DatePicker(
+        first_date=datetime(2020, 1, 1),
+        last_date=datetime(2035, 12, 31),
+        value=datetime.now(),  
+    )
+
+    def on_pick_date(e):
+        nonlocal calendar_date
+        if date_picker.value:
+            calendar_date = date_picker.value.date()
+            refresh_calendar_day()
+            page.update()
+
+    date_picker.on_change = on_pick_date
+    page.overlay.append(date_picker)
+
+    def open_calendar_date_picker(_):
+        date_picker.open = True
+        page.update()
+
+    def refresh_calendar_day():
+        calendar_view.controls.clear()
+        calendar_view.controls.append(ft.Text("Calendario diario", size=22, weight=ft.FontWeight.BOLD))
+
+        # filtro de recurso
+        res_options = [ft.dropdown.Option("", "Todos")] + [
+            ft.dropdown.Option(r["id"], r.get("name", r["id"])) for r in db.list_resources()
+        ]
+        filter_dd = ft.Dropdown(
+            label="Filtrar por recurso",
+            value=resource_filter,
+            options=res_options,
+        )
+
+        def on_filter_change(e):
+            nonlocal resource_filter
+            resource_filter = e.control.value or ""
+            refresh_calendar_day()
+            page.update()
+
+        filter_dd.on_change = on_filter_change
+
+        calendar_view.controls.append(
+            ft.Row(
+                [
+                    ft.Text(f"Fecha: {calendar_date.isoformat()}", size=14),
+                    ft.ElevatedButton("Cambiar fecha", on_click=open_calendar_date_picker),
+                    filter_dd,
+                ],
+                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            )
+        )
+
+        # parámetros visuales del timeline
+        DAY_START = 7
+        DAY_END = 20
+        PX_PER_MIN = 1.0  # 1 px por minuto => 13h = 780px de alto aprox
+        timeline_height = int((DAY_END - DAY_START) * 60 * PX_PER_MIN)
+
+        # cargar eventos del día
+        day_events = []
+        for e_dict in db.list_events():
+            try:
+                ev = Event.from_dict(e_dict)
+            except Exception:
+                continue
+            if ev.start.date() != calendar_date:
+                continue
+            if resource_filter and resource_filter not in ev.resource_ids:
+                continue
+            day_events.append(ev)
+
+        day_events.sort(key=lambda x: x.start)
+
+        # fondo: horas
+        hour_rows = []
+        hour_height = int(60 * PX_PER_MIN)
+        for h in range(DAY_START, DAY_END + 1):
+            hour_rows.append(
+                ft.Container(
+                    height=hour_height,
+                    content=ft.Row(
+                        [
+                            ft.Container(width=70, content=ft.Text(f"{h:02d}:00")),
+                            ft.Container(expand=True, height=1, bgcolor=ft.Colors.GREY_300),
+                        ],
+                        alignment=ft.MainAxisAlignment.START,
+                    ),
+                )
+            )
+
+        background = ft.Column(hour_rows, spacing=0)
+
+        # eventos: tarjetas posicionadas
+        event_cards = []
+        for ev in day_events:
+            start_min = (ev.start.hour * 60 + ev.start.minute) - (DAY_START * 60)
+            end_min = (ev.end.hour * 60 + ev.end.minute) - (DAY_START * 60)
+
+            # clamp por si hay eventos fuera del rango visual
+            start_min = max(0, start_min)
+            end_min = min((DAY_END - DAY_START) * 60, end_min)
+
+            top = int(start_min * PX_PER_MIN)
+            height = max(35, int((end_min - start_min) * PX_PER_MIN))
+
+            # texto de recursos (opcional)
+            res_names = []
+            all_res = {r["id"]: r.get("name", r["id"]) for r in db.list_resources()}
+            for rid in ev.resource_ids:
+                res_names.append(all_res.get(rid, rid))
+            res_text = ", ".join(res_names)
+
+            card = ft.Container(
+                left=80,
+                right=10,
+                top=top,
+                height=height,
+                bgcolor=ft.Colors.BLUE_100,
+                border_radius=10,
+                padding=10,
+                on_click=lambda e, _ev=ev: open_event_dialog(_ev.to_dict()),
+                content=ft.Column(
+                    [
+                        ft.Text(f"{ev.start.strftime('%H:%M')} - {ev.end.strftime('%H:%M')}  |  {ev.name}",
+                                weight=ft.FontWeight.BOLD),
+                        ft.Text(ev.event_type or "", size=12),
+                        ft.Text(res_text, size=11, color=ft.Colors.GREY_700),
+                    ],
+                    spacing=4,
+                ),
+            )
+            event_cards.append(card)
+
+        timeline = ft.Container(
+            height=timeline_height,
+            content=ft.Stack([background, *event_cards]),
+        )
+
+        calendar_view.controls.append(
+            ft.Container(
+                border=ft.border.all(1, ft.Colors.GREY_300),
+                border_radius=10,
+                padding=10,
+                content=ft.Column(
+                    [timeline],
+                    scroll=ft.ScrollMode.AUTO,
+                    height=520,  # scroll vertical del día
+                ),
+            )
+        )
+
     # UI helpers ----------------
     def snack(msg:str):
         page.snack_bar = ft.SnackBar(ft.Text(msg))
@@ -89,6 +246,13 @@ def main(page: ft.Page):
                 dashboard_view.controls.append(
                     ft.Text(f"- {e.get('start')} | {e.get('name')} ({e.get('event_type','')})")
                 )
+
+
+    def parse_dt(d_str:str, t_str: str)-> datetime:
+        d = datetime.strptime(d_str.strip(), "%Y-%m-%d").date()
+        t = datetime.strptime(t_str.strip(), "%H:%M").time()
+        return datetime.combine(d, t)
+
 
     def open_event_dialog(existing:dict):
         name_edit=ft.TextField(label="Nombre", value=existing.get("name",""))
@@ -190,7 +354,7 @@ def main(page: ft.Page):
         ]
 
         open_dialog(dlg)
-        
+
 
     # Events List
     def refresh_events_list():
@@ -414,10 +578,6 @@ def main(page: ft.Page):
     validation_text = ft.Text("")  
     resources_column = ft.Column(spacing=2)
 
-    def parse_dt(d_str:str, t_str: str)-> datetime:
-        d = datetime.strptime(d_str.strip(), "%Y-%m-%d").date()
-        t = datetime.strptime(t_str.strip(), "%H:%M").time()
-        return datetime.combine(d, t)
     
     def build_resources_checklist(preselected=None):
         preselected=set(preselected or [])
@@ -624,6 +784,7 @@ def main(page: ft.Page):
             ft.NavigationRailDestination(icon=ft.Icons.DASHBOARD, label="Dashboard"),
             ft.NavigationRailDestination(icon=ft.Icons.EVENT, label="Eventos"),
             ft.NavigationRailDestination(icon=ft.Icons.ADD_BOX, label="Nuevo evento"),
+            ft.NavigationRailDestination(icon=ft.Icons.CALENDAR_MONTH, label="Calendario"),
             ft.NavigationRailDestination(icon=ft.Icons.MEDICAL_SERVICES, label="Recursos"),
         ],
         on_change=lambda e: go_to(e.control.selected_index),
@@ -635,21 +796,29 @@ def main(page: ft.Page):
         if selected_index == 0:
             refresh_dashboard()
             content.content = dashboard_view
+
         elif selected_index == 1:
             refresh_events_list()
             content.content = events_view
-        elif selected_index == 3:
-            refresh_resources_list()
-            content.content = resources_view
-        else:
+
+        elif selected_index == 2:
             build_resources_checklist()
             quick_validate()
             content.content = new_event_view
 
-        page.update()
+        elif selected_index == 3:
+            refresh_calendar_day()
+            content.content = calendar_view
 
+        elif selected_index == 4:
+            refresh_resources_list()
+            content.content = resources_view
+
+        page.update()
+    
     page.add(ft.Row([nav, ft.VerticalDivider(width=1), content], expand=True))
     render()
+
 
 
 
