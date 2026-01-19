@@ -1,7 +1,7 @@
 import flet as ft
 from datetime import datetime, date, timedelta
 from uuid import uuid4
-
+import json
 from models.database_manager import DatabaseManager
 from models.scheduler import Scheduler
 from models.event import Event
@@ -84,6 +84,25 @@ def main(page: ft.Page):
         PX_PER_MIN = 1.0  # 1 px por minuto => 13h = 780px de alto aprox
         timeline_height = int((DAY_END - DAY_START) * 60 * PX_PER_MIN)
 
+        SLOT_MIN = 20
+        slot_height = int(SLOT_MIN * PX_PER_MIN)
+
+        def on_slot_click(minutes_of_day: int):
+            # minutes_of_day ya viene absoluto (ej: 14:30 => 870)
+            start_h, start_m = divmod(minutes_of_day, 60)
+            end_minutes = min(DAY_END * 60, minutes_of_day + 60)  # default 60 min
+            end_h, end_m = divmod(end_minutes, 60)
+
+            date_tf.value = calendar_date.isoformat()
+            start_tf.value = f"{start_h:02d}:{start_m:02d}"
+            end_tf.value = f"{end_h:02d}:{end_m:02d}"
+
+            # debug opcional
+            snack(f"Nuevo evento {start_tf.value}-{end_tf.value}")
+
+            go_to(2)  # Nuevo evento
+        
+
         # cargar eventos del día
         day_events = []
         for e_dict in db.list_events():
@@ -100,23 +119,26 @@ def main(page: ft.Page):
         day_events.sort(key=lambda x: x.start)
 
         # fondo: horas
-        hour_rows = []
-        hour_height = int(60 * PX_PER_MIN)
-        for h in range(DAY_START, DAY_END + 1):
-            hour_rows.append(
+        slot_rows = []
+        for m in range(DAY_START * 60, DAY_END * 60, SLOT_MIN):
+            label = f"{m//60:02d}:00" if m % 60 == 0 else ""
+
+            slot_rows.append(
                 ft.Container(
-                    height=hour_height,
+                    height=slot_height,
+                    ink=True,  # para que sea clickeable con efecto
+                    on_click=lambda e, mm=m: on_slot_click(mm),
                     content=ft.Row(
                         [
-                            ft.Container(width=70, content=ft.Text(f"{h:02d}:00")),
-                            ft.Container(expand=True, height=1, bgcolor=ft.Colors.GREY_300),
+                            ft.Container(width=70, content=ft.Text(label)),
+                            ft.Container(expand=True, height=1, bgcolor=ft.Colors.GREY_200),
                         ],
                         alignment=ft.MainAxisAlignment.START,
                     ),
                 )
             )
 
-        background = ft.Column(hour_rows, spacing=0)
+        background = ft.Column(slot_rows, spacing=0)
 
         # eventos: tarjetas posicionadas
         event_cards = []
@@ -158,6 +180,8 @@ def main(page: ft.Page):
                 ),
             )
             event_cards.append(card)
+
+        
 
         timeline = ft.Container(
             height=timeline_height,
