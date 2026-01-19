@@ -90,6 +90,108 @@ def main(page: ft.Page):
                     ft.Text(f"- {e.get('start')} | {e.get('name')} ({e.get('event_type','')})")
                 )
 
+    def open_event_dialog(existing:dict):
+        name_edit=ft.TextField(label="Nombre", value=existing.get("name",""))
+        type_edit=ft.TextField(label="Tipo",value=existing.get("event_type",""))
+
+        start_iso = existing.get("start", "")
+        end_iso = existing.get("end", "")
+
+        date_edit = ft.TextField(label="Fecha (YYYY-MM-DD)", value=start_iso.split("T")[0] if "T" in start_iso else "")
+        start_edit = ft.TextField(label="Hora inicio (HH:MM)", value=start_iso.split("T")[1] if "T" in start_iso else "09:00")
+        end_edit = ft.TextField(label="Hora fin (HH:MM)", value=end_iso.split("T")[1] if "T" in end_iso else "11:00")
+
+        # Recursos (checkboxes)
+        selected_ids = set(existing.get("resource_ids", []))
+        res_checks_col = ft.Column(spacing=2)
+
+        def rebuild_checks():
+            res_checks_col.controls.clear()
+            for r in db.list_resources():
+                rid = r["id"]
+                rname = r.get("name", rid)
+
+                def on_change(e, _rid=rid):
+                    if e.control.value:
+                        selected_ids.add(_rid)
+                    else:
+                        selected_ids.discard(_rid)
+
+                res_checks_col.controls.append(
+                    ft.Checkbox(label=rname, value=(rid in selected_ids), on_change=on_change)
+                )
+        
+        rebuild_checks()
+
+        dlg = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("Editar evento"),
+            content=ft.Column(
+                [
+                    name_edit,
+                    type_edit,
+                    ft.Row([date_edit, start_edit, end_edit]),
+                    ft.Text("Recursos"),
+                    ft.Container(res_checks_col, border=ft.border.all(1, ft.Colors.GREY_300), padding=10, height=180),
+                ],
+                tight=True,
+                scroll=ft.ScrollMode.AUTO,
+                height=520,
+            ),
+            actions=[],
+        )
+
+        def on_save(_):
+            if not name_edit.value.strip():
+                snack("El nombre es obligatorio.")
+                return
+            if not selected_ids:
+                snack("Selecciona al menos un recurso.")
+                return
+            
+            try:
+                new_start = parse_dt(date_edit.value, start_edit.value)
+                new_end = parse_dt(date_edit.value, end_edit.value)
+            except Exception:
+                snack("Fecha/hora inválidas.")
+                return
+            
+            if new_end<=new_start:
+                snack("Hora fin debe ser mayor que inicio.")
+                return 
+
+
+            # Construir Event con el MISMO id (para que ignore el propio evento)
+            ev = Event(
+                id=existing["id"],
+                name=name_edit.value.strip(),
+                description=existing.get("description", ""),
+                event_type=type_edit.value.strip(),
+                start=new_start,
+                end=new_end,
+                resource_ids=list(selected_ids),
+            )
+
+            violations = scheduler.validate_event(ev)
+            if violations:
+                show_dialog("Conflictos detectados", "\n".join(f"• {v.message}" for v in violations))
+                return
+
+            db.upsert_event(ev.to_dict())
+            close_dialog(dlg)
+            snack("Evento actualizado.")
+            refresh_dashboard()
+            refresh_events_list()
+            page.update()
+
+        dlg.actions = [
+            ft.TextButton("Cancelar", on_click=lambda e: close_dialog(dlg)),
+            ft.ElevatedButton("Guardar cambios", on_click=on_save),
+        ]
+
+        open_dialog(dlg)
+        
+
     # Events List
     def refresh_events_list():
         events_view.controls.clear()
@@ -127,12 +229,22 @@ def main(page: ft.Page):
                         ft.DataCell(ft.Text(e.get("name", ""))),
                         ft.DataCell(ft.Text(e.get("event_type", ""))),
                         ft.DataCell(
-                            ft.IconButton(
-                                icon=ft.Icons.DELETE,
-                                tooltip="Eliminar",
-                                on_click=lambda ev, _id=e["id"]: delete_event(_id),
+                            ft.Row(
+                                [
+                                    ft.IconButton(
+                                        icon=ft.Icons.EDIT,
+                                        tooltip="Editar",
+                                        on_click=lambda ev, _e=e: open_event_dialog(_e),
+                                    ),
+                                    ft.IconButton(
+                                        icon=ft.Icons.DELETE,
+                                        tooltip="Eliminar",
+                                        on_click=lambda ev, _id=e["id"]: delete_event(_id),
+                                    ),
+                                ],
+                                spacing=0,
                             )
-                        ),
+                        )
                     ]
                 )
             )

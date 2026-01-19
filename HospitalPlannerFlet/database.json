@@ -75,17 +75,17 @@
     },
     {
       "id": "4907aa75-95f4-4cfa-a1c7-a2aa766b2d37",
-      "name": "Cirugia cardiovascular",
+      "name": "Cirugia cardiovascularr",
       "description": "",
       "event_type": "cirugia_cardiovascular",
       "start": "2026-01-18T11:30",
       "end": "2026-01-18T13:30",
       "resource_ids": [
+        "OR1",
         "ENF2",
         "DR_AN1",
-        "OR1",
-        "DR_CIR1",
-        "ENF1"
+        "ENF1",
+        "DR_CIR1"
       ]
     }
   ],
