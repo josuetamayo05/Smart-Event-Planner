@@ -11,6 +11,12 @@ from models.constraint import Violation
 def overlaps(s1:datetime, e1:datetime, s2: datetime, e2:datetime) -> bool:
     return s1<e2 and s2<e1
 
+def hhmm_to_minutes(hhmm:str)->int:
+    h, m=hhmm.split(":")
+    return int(h) * 60 + int(m)
+
+WEEKDAY_KEYS = ["mon","tue","wed","thu","fri","sat","sun"]
+
 @dataclass
 class CandidateSlot:
     resources: List[Resource]
@@ -34,6 +40,80 @@ class Scheduler:
         return [all_res[rid] for rid in ids if rid in all_res]
 
     #  disponibilidad basica
+
+    def _check_availability(self, event:Event)->List[Violation]:
+        violations:List[Violation]=[]
+
+        # Por simplicidad: no permitimos eventos que crucen medianoche
+        if event.start.date()!=event.end.date():
+            violations.append(
+                Violation(
+                    code="CROSSES_MIDNIGHT",
+                    message="El evento no puede cruzar medianoche (start y end deben ser el mismo día)."
+                )
+            )
+            return violations
+        
+        res_map = {r.id: r for r in self._all_resources()}
+
+        day_key=WEEKDAY_KEYS[event.start.weekday()]
+        start_min=event.start.hour *60+event.start.minute
+        end_min=event.end.hour * 60 + event.end.minute
+
+        for rid in event.resource_ids:
+            r=res_map.get(rid)
+            if not r: continue
+
+            availability = getattr(r, "availability", None)
+            if not availability:
+                continue
+
+            weekly=availability.get("weekly",{})
+            windows=weekly.get(day_key,[])
+
+            # windows esperado: [["08:00","18:00"], ...]
+            within_any_window=False
+            for w in windows:
+                if not isinstance(w,list) or len(w)!=2:
+                    continue
+                w_start=hhmm_to_minutes(w[0])
+                w_end=hhmm_to_minutes(w[1])
+                if start_min>=w_start and end_min<=w_end:
+                    within_any_window=True
+                    break
+
+            if not within_any_window:
+                violations.append(
+                    Violation(
+                        code="OUTSIDE_AVAILABILITY",
+                        message=f"El recurso '{r.name}' no está disponible ese día/hora según tu turno."
+                    )
+                )
+                # no seguimos con blackouts si ya está fuera
+                continue
+
+            # blackout    
+            blackouts= availability.get("blackouts",[])
+            for b in blackouts:
+                try:
+                    b_start=datetime.strptime(b["start"],"%Y-%m-%dT%H:%M")
+                    b_end=datetime.strptime(b["end"],"%Y-%m-%dT%H:%M")
+                except Exception:
+                    continue
+
+                if overlaps(event.start, event.end, b_start, b_end):
+                    reason=b.get("reason","Bloqueo")
+                    violations.append(
+                        Violation(
+                            code="RESOURCE_BLACKOUT",
+                            message=f"El recurso '{r.name}' está bloqueado por: {reason}"
+                        )
+                    )
+                    break
+        
+        return violations
+
+
 
     def is_resource_free(self, resource_id: str, start:datetime, end:datetime,
                          ignore_event_id:Optional[str]=None) -> bool:
@@ -66,6 +146,9 @@ class Scheduler:
 
         #3 exclusiones mutuas
         violations.extend(self._mutual_corequisites(event))
+
+        #4 blackouts and avaibilitys
+        violations.extend(self._check_availability(event))
         
         return violations
     
@@ -77,7 +160,7 @@ class Scheduler:
         roles = Counter(r.role for r in event_resources if r.kind=="human")
 
         #Quirofano -> 1 cirujano, 1 anestesiologo, 2 enfermeras
-        user_of=any(r.subtype=="quirófano" for r in event_resources)
+        user_of=any(r.subtype=="quirofano" for r in event_resources)
         if user_of:
             required={"cirujano": 1, "anestesiologo": 1, "enfermera": 2}
             missing = {role: qty for role, qty in required.items() if roles.get(role, 0) < qty}
@@ -89,8 +172,8 @@ class Scheduler:
                         message=f"El quirófano requiere {detail}."))
 
         # Cirugia cardiaca -> cardiologo + equipo CEC
-        if event.event_type == "cirugía_cardiaca":
-            if roles.get("cirujano",0)<1:
+        if event.event_type == "cirugia_cardiaca":
+            if roles.get("cardiologo",0)<1:
                 violations.append(Violation(
                     code="CARDIO_SURGEON_MISSING",
                     message="La cirugía cardíaca requiere de un cardiólogo"))
@@ -112,7 +195,7 @@ class Scheduler:
         all_events=self._all_events()
 
         # Quirófano infeccioso vs trasplante el mismo día
-        uses_infectious_or=any(r.subtype=="quirófano" and "infeccioso" in (r.tags or [])
+        uses_infectious_or=any(r.subtype=="quirofano" and "infeccioso" in (r.tags or [])
                                for r in event_resources)
         if uses_infectious_or:
             day=event.start.date()
@@ -135,7 +218,7 @@ class Scheduler:
                     break
 
         # tomografo vs radioterapia solapados
-        uses_ct=any(r.subtype=="tomógrafo" for r in event_resources)
+        uses_ct=any(r.subtype=="tomografo" for r in event_resources)
         uses_rt=any(r.subtype in ("radioterapia", "acelerador_lineal") for r in event_resources)
 
         if uses_rt or uses_ct:
@@ -146,7 +229,7 @@ class Scheduler:
                     continue
 
                 other_res=self._resources_by_id(other.resource_ids)
-                other_uses_ct=any(r.subtype=="tomógrafo" for r in other_res)
+                other_uses_ct=any(r.subtype=="tomografo" for r in other_res)
                 other_uses_rt=any(r.subtype in ("radioterapia","acelerador_lineal") for r in other_res)
 
                 if (uses_rt and other_uses_ct) or (uses_rt and other_uses_ct):
@@ -172,7 +255,7 @@ class Scheduler:
     )->List[CandidateSlot]:
         """
         required_filters: dict con filtros sobre recursos, ej:
-            {"roles": ["cardiologo"], "subtypes": ["quirófano"]}
+            {"roles": ["cardiologo"], "subtypes": ["quirofano"]}
         """
         roles=set(required_filters.get("roles",[]))
         subtypes=set(required_filters.get("subtypes",[]))
@@ -229,11 +312,11 @@ class Scheduler:
 
         # co-requisitos que se deben cumplir
         required_roles = Counter()
-        uses_or=any(r.subtype=="quirófano" for r in fixed_resources)
+        uses_or=any(r.subtype=="quirofano" for r in fixed_resources)
         if uses_or:
             required_roles.update({"cirujano":1,"anestesiologo":1,"enfermera":2})
 
-        required_cec = (event_type == "cirujia_cardiaca")
+        required_cec = (event_type == "cirugia_cardiaca")
         step=timedelta(minutes=step_minutes)
         limit=from_dt+timedelta(days=search_horizon_days)
 

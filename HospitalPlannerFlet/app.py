@@ -344,7 +344,7 @@ def main(page: ft.Page):
                 snack("Fecha/hora inválidas.")
                 return
             
-            if new_end<=new_start:
+            if new_end < new_start:
                 snack("Hora fin debe ser mayor que inicio.")
                 return 
 
@@ -710,6 +710,12 @@ def main(page: ft.Page):
             page.update()
             return
         
+        if start_dt>=end_dt:
+            validation_text.value = "La fecha de inicio debe ser menor que la final."
+            validation_text.color=ft.Colors.RED
+            page.update()
+            return
+        
         temp = Event(
             id="__tmp__",
             name=name_tf.value.strip() or "Evento",
@@ -798,7 +804,7 @@ def main(page: ft.Page):
         scroll=ft.ScrollMode.AUTO,
         expand=True,
     )
-
+    
     # ---------------- Layout ----------------
     content=ft.Container(expand=True,padding=15)
     nav=ft.NavigationRail(

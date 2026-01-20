@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import List
+from typing import List,Optional,Dict,Any
 
 @dataclass
 class Resource:
@@ -10,6 +10,7 @@ class Resource:
     subtype: str | None = None
     role: str | None = None
     tags:List[str] = field(default_factory=list)
+    availability:Optional[Dict[str,Any]]=None
 
     @classmethod
     def from_dict(cls, data: dict) -> "Resource":
@@ -20,10 +21,11 @@ class Resource:
             subtype=data.get("subtype"),
             role=data.get("role"),
             tags=data.get("tags",[]),
+            availability=data.get("availability")
         )
 
     def to_dict(self) -> dict:
-        return {
+        d= {
             "id": self.id,
             "name": self.name,
             "kind": self.kind,
@@ -31,3 +33,7 @@ class Resource:
             "role": self.role,
             "tags": self.tags,
         }
+        if self.availability is not None:
+            d["availability"]=self.availability
+        
+        return d

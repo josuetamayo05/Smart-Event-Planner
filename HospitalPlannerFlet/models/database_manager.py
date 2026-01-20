@@ -106,7 +106,7 @@ class DatabaseManager:
     
     def get_event(self,event_id:str)->Optional[Dict[str,Any]]:
         for e in self.data.get("events",[]):
-            if e.get("id")==event_id:
+            if e.get("id")==event_id:   
                 return e
         return None
     
