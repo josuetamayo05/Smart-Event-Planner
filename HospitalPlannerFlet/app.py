@@ -849,7 +849,7 @@ def main(page: ft.Page):
     page.add(ft.Row([nav, ft.VerticalDivider(width=1), content], expand=True))
     render()
 
-
+    
 
 
 if __name__ == "__main__":
