@@ -424,6 +424,14 @@
       "subtype": null,
       "role": "Developer",
       "tags": []
+    },
+    {
+      "id": "dafa",
+      "name": "dsad",
+      "kind": "human",
+      "subtype": null,
+      "role": "cirujano",
+      "tags": []
     }
   ],
   "events": [
