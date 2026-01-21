@@ -52,10 +52,16 @@ class ResourcesView:
             id_tf = ft.TextField(label="ID", value=(existing.get("id", "") if is_edit else ""))
             name_tf = ft.TextField(label="Nombre", value=(existing.get("name", "") if is_edit else ""))
 
-            kind_dd = ft.Dropdown(
-                label="Kind",
-                options=[ft.dropdown.Option("physical", "physical"), ft.dropdown.Option("human", "human")],
+            # Kind: RADIO (más confiable que Dropdown dentro de dialog)
+            kind_rg = ft.RadioGroup(
                 value=(existing.get("kind") if is_edit else "physical"),
+                content=ft.Row(
+                    [
+                        ft.Radio(value="physical", label="physical"),
+                        ft.Radio(value="human", label="human"),
+                    ],
+                    spacing=20,
+                ),
             )
 
             subtype_dd = ft.Dropdown(
@@ -70,54 +76,54 @@ class ResourcesView:
                 value=(existing.get("role") if is_edit else None),
             )
 
-            tags_tf = ft.TextField(
-                label="Tags (coma)",
-                value=",".join(existing.get("tags", [])) if is_edit else "",
+            existing_tags = set(existing.get("tags", [])) if is_edit else set()
+
+            tag_options = RESOURCE_CATALOG.get("Tags sugeridos", [])
+            tag_checks_col = ft.Column(spacing=2)
+
+            def rebuild_tag_checks():
+                tag_checks_col.controls.clear()
+                for t in tag_options:
+                    code = t["code"]
+                    label = t["label"]
+
+                    def on_tag_change(e, _code=code):
+                        if e.control.value:
+                            existing_tags.add(_code)
+                        else:
+                            existing_tags.discard(_code)
+
+                    tag_checks_col.controls.append(
+                        ft.Checkbox(label=label, value=(code in existing_tags), on_change=on_tag_change)
+                    )
+
+            rebuild_tag_checks()
+
+            custom_tags_tf = ft.TextField(
+                label="Tags extra (coma) (opcional)",
+                value="",
+                hint_text="Ej: esteril, pediatrico",
             )
 
-            # Habilitar/deshabilitar según kind
-            def apply_kind_state():
-                if kind_dd.value == "physical":
-                    subtype_dd.disabled = False
-                    role_dd.disabled = True
-                    role_dd.value = None
-                else:
-                    subtype_dd.disabled = True
-                    subtype_dd.value = None
-                    role_dd.disabled = False
-
-            def on_kind_change(e):
-                apply_kind_state()
-                self.page.update()
-
-            kind_dd.on_change = on_kind_change
-            apply_kind_state()
-
-            # Botón catálogo (rellena subtype o role según kind)
-            def open_resource_catalog(_):
-                kind = kind_dd.value
-                items = RESOURCE_CATALOG["Físicos (subtype)"] if kind == "physical" else RESOURCE_CATALOG["Humanos (role)"]
+            # Botones catálogo (dos instancias)
+            def open_catalog_for_subtype(_):
+                items = RESOURCE_CATALOG["Físicos (subtype)"]
 
                 def pick(it: dict):
-                    if kind == "physical":
-                        subtype_dd.value = it["code"]
-                    else:
-                        role_dd.value = it["code"]
+                    subtype_dd.value = it["code"]
                     close_dialog(self.page, cat_dlg)
                     self.page.update()
 
                 cat_dlg = ft.AlertDialog(
                     modal=True,
-                    title=ft.Text("Catálogo de tipos de recurso"),
+                    title=ft.Text("Catálogo (Subtype físico)"),
                     content=ft.Container(
                         width=520,
                         height=520,
                         content=ft.Column(
                             [
-                                ft.ListTile(
-                                    title=ft.Text(it["label"]),
-                                    on_click=lambda e, it=it: pick(it),
-                                )
+                                ft.ListTile(title=ft.Text(it["label"]),
+                                            on_click=lambda e, it=it: pick(it))
                                 for it in items
                             ],
                             scroll=ft.ScrollMode.AUTO,
@@ -127,9 +133,67 @@ class ResourcesView:
                 )
                 open_dialog(self.page, cat_dlg)
 
-            catalog_btn = ft.ElevatedButton("Mostrar catálogo", on_click=open_resource_catalog)
+            def open_catalog_for_role(_):
+                items = RESOURCE_CATALOG["Humanos (role)"]
 
-            # Diálogo
+                def pick(it: dict):
+                    role_dd.value = it["code"]
+                    close_dialog(self.page, cat_dlg)
+                    self.page.update()
+
+                cat_dlg = ft.AlertDialog(
+                    modal=True,
+                    title=ft.Text("Catálogo (Role humano)"),
+                    content=ft.Container(
+                        width=520,
+                        height=520,
+                        content=ft.Column(
+                            [
+                                ft.ListTile(title=ft.Text(it["label"]),
+                                            on_click=lambda e, it=it: pick(it))
+                                for it in items
+                            ],
+                            scroll=ft.ScrollMode.AUTO,
+                        ),
+                    ),
+                    actions=[ft.TextButton("Cerrar", on_click=lambda e: close_dialog(self.page, cat_dlg))],
+                )
+                open_dialog(self.page, cat_dlg)
+
+            catalog_btn_subtype = ft.ElevatedButton("Catálogo subtype", on_click=open_catalog_for_subtype)
+            catalog_btn_role = ft.ElevatedButton("Catálogo role", on_click=open_catalog_for_role)
+
+            subtype_row = ft.Row([ft.Container(subtype_dd, expand=True), catalog_btn_subtype])
+            role_row = ft.Row([ft.Container(role_dd, expand=True), catalog_btn_role])
+
+            def apply_kind_state(update_ui: bool = False):
+                is_human = (kind_rg.value == "human")
+
+                subtype_dd.disabled = is_human
+                role_dd.disabled = not is_human
+
+                subtype_row.visible = not is_human
+                role_row.visible = is_human
+
+                if is_human:
+                    subtype_dd.value = None
+                else:
+                    role_dd.value = None
+
+                if update_ui:
+                    subtype_dd.update()
+                    role_dd.update()
+                    subtype_row.update()
+                    role_row.update()
+
+            def on_kind_change(e):
+                # debug
+                snack(self.page, f"Kind cambiado a: {kind_rg.value}")
+                apply_kind_state(update_ui=True)
+
+            kind_rg.on_change = on_kind_change
+            apply_kind_state(update_ui=False)
+
             dlg = ft.AlertDialog(
                 modal=True,
                 title=ft.Text("Editar recurso" if is_edit else "Nuevo recurso"),
@@ -137,14 +201,22 @@ class ResourcesView:
                     [
                         id_tf,
                         name_tf,
-                        kind_dd,
-                        ft.Row([ft.Container(subtype_dd, expand=True), catalog_btn]),
-                        ft.Row([ft.Container(role_dd, expand=True), catalog_btn]),
-                        tags_tf,
+                        ft.Text("Kind"),
+                        kind_rg,
+                        subtype_row,
+                        role_row,
+                        ft.Text("Tags sugeridos"),
+                        ft.Container(
+                            tag_checks_col,
+                            border=ft.border.all(1, ft.Colors.GREY_300),
+                            padding=10,
+                            height=140,
+                        ),
+                        custom_tags_tf,
                     ],
                     tight=True,
                     scroll=ft.ScrollMode.AUTO,
-                    height=420,
+                    height=460,
                 ),
                 actions=[],
             )
@@ -167,14 +239,22 @@ class ResourcesView:
                     snack(self.page, "Ya existe un recurso con ese ID.")
                     return
 
-                tags = [t.strip() for t in (tags_tf.value or "").split(",") if t.strip()]
+                if kind_rg.value == "physical" and not subtype_dd.value:
+                    snack(self.page, "Selecciona un subtype para recursos físicos.")
+                    return
+                if kind_rg.value == "human" and not role_dd.value:
+                    snack(self.page, "Selecciona un role para recursos humanos.")
+                    return
+
+                extra = [t.strip() for t in (custom_tags_tf.value or "").split(",") if t.strip()]
+                tags = sorted(set(existing_tags).union(extra))
 
                 self.db.upsert_resource({
                     "id": rid,
                     "name": rname,
-                    "kind": kind_dd.value,
-                    "subtype": subtype_dd.value if kind_dd.value == "physical" else None,
-                    "role": role_dd.value if kind_dd.value == "human" else None,
+                    "kind": kind_rg.value,
+                    "subtype": subtype_dd.value if kind_rg.value == "physical" else None,
+                    "role": role_dd.value if kind_rg.value == "human" else None,
                     "tags": tags,
                 })
 
@@ -187,6 +267,7 @@ class ResourcesView:
                 ft.TextButton("Cancelar", on_click=lambda e: close_dialog(self.page, dlg)),
                 ft.ElevatedButton("Guardar", on_click=on_save),
             ]
+
             open_dialog(self.page, dlg)
 
         self.view.controls.append(

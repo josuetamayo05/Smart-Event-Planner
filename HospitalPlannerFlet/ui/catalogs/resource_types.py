@@ -13,11 +13,11 @@ RESOURCE_CATALOG = {
         {"code": "cardiologo", "label": "Cardiólogo"},
         {"code": "tecnico_radiologia", "label": "Téc. Radiología"},
     ],
-    "Tags sugeridos": [
+    "Tags sugeridos" : [
         {"code": "infeccioso", "label": "Infeccioso"},
         {"code": "cec", "label": "CEC"},
         {"code": "cardiac", "label": "Cardiac"},
         {"code": "recovery", "label": "Recovery"},
         {"code": "trasplante", "label": "Trasplante"},
-    ],
+    ]
 }

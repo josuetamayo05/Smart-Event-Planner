@@ -5,50 +5,8 @@
       "name": "Quirófano 1",
       "kind": "physical",
       "subtype": "quirofano",
-      "tags": [],
-      "availability": {
-        "weekly": {
-          "mon": [
-            [
-              "08:00",
-              "18:00"
-            ]
-          ],
-          "tue": [
-            [
-              "08:00",
-              "18:00"
-            ]
-          ],
-          "wed": [
-            [
-              "08:00",
-              "18:00"
-            ]
-          ],
-          "thu": [
-            [
-              "08:00",
-              "18:00"
-            ]
-          ],
-          "fri": [
-            [
-              "08:00",
-              "18:00"
-            ]
-          ],
-          "sat": [],
-          "sun": []
-        },
-        "blackouts": [
-          {
-            "start": "2026-01-22T12:00",
-            "end": "2026-01-22T16:00",
-            "reason": "Mantenimiento"
-          }
-        ]
-      }
+      "role": null,
+      "tags": []
     },
     {
       "id": "DR_AN1",
@@ -432,6 +390,24 @@
       "subtype": null,
       "role": "cirujano",
       "tags": []
+    },
+    {
+      "id": "Jos",
+      "name": "JOOOs",
+      "kind": "human",
+      "subtype": null,
+      "role": "cardiologo",
+      "tags": []
+    },
+    {
+      "id": "Q2",
+      "name": "Quirofano",
+      "kind": "physical",
+      "subtype": "quirofano",
+      "role": null,
+      "tags": [
+        "infeccioso"
+      ]
     }
   ],
   "events": [
@@ -466,6 +442,51 @@
       "end": "2026-01-18T13:30",
       "resource_ids": [
         "OR1",
+        "ENF2",
+        "DR_AN1",
+        "ENF1",
+        "DR_CIR1"
+      ]
+    },
+    {
+      "id": "29ed5120-e9fc-4c45-8e80-d145588ad8b1",
+      "name": "fasfasfa",
+      "description": "",
+      "event_type": "trasplante",
+      "start": "2026-01-20T09:00",
+      "end": "2026-01-20T11:00",
+      "resource_ids": [
+        "Q2",
+        "ENF2",
+        "DR_AN1",
+        "ENF1",
+        "DR_CIR1"
+      ]
+    },
+    {
+      "id": "5c60a174-7f00-46b5-8f7a-fd83991a1b92",
+      "name": "fasfasfa",
+      "description": "",
+      "event_type": "trasplante",
+      "start": "2026-01-23T09:00",
+      "end": "2026-01-23T11:00",
+      "resource_ids": [
+        "OR1",
+        "ENF2",
+        "DR_AN1",
+        "ENF1",
+        "DR_CIR1"
+      ]
+    },
+    {
+      "id": "429be11b-5012-43a2-ae69-6e58e27fb698",
+      "name": "ftraspalnte",
+      "description": "",
+      "event_type": "trasplante",
+      "start": "2026-01-22T09:00",
+      "end": "2026-01-22T11:00",
+      "resource_ids": [
+        "Q2",
         "ENF2",
         "DR_AN1",
         "ENF1",

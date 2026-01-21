@@ -194,26 +194,30 @@ class Scheduler:
         event_resources = self._resources_by_id(event.resource_ids)
         all_events=self._all_events()
 
-        # Quirófano infeccioso vs trasplante el mismo día
-        uses_infectious_or=any(r.subtype=="quirofano" and "infeccioso" in (r.tags or [])
-                               for r in event_resources)
-        if uses_infectious_or:
-            day=event.start.date()
+        def is_infectious_or(res_list: List[Resource])->bool:
+            return any(r.subtype=="quirofano" and "infeccioso" in (r.tags or []) for r in res_list)
+        
+        def is_transplant(ev: Event, res_list:List[Resource])->bool:
+            return (ev.event_type=="trasplante") or any("trasplante" in (r.tags or []) for r in res_list)
+        
+        day=event.start.date()
+        this_inf=is_infectious_or(event_resources)
+        this_tr=is_transplant(event,event_resources)
+        
+        if this_inf or this_tr:
             for other in all_events:
                 if other.id==event.id:
                     continue
                 if other.start.date()!=day:
                     continue
-
                 other_res=self._resources_by_id(other.resource_ids)
-                is_transplant=(
-                    other.event_type=="trasplante" or any("trasplante" in r.tags or [] for r in other_res)
-                )
-                if is_transplant:
-                    violations.append(
-                        Violation(
-                            code="INF_OR_VS_TRASPLANT",
-                            message="El quirófano infeccioso no puede usarse el mismo día que cirugías de trasplante.",
+                other_inf=is_infectious_or(other_res)
+                other_tr=is_transplant(other, other_res)
+
+                if (this_inf and other_tr) or (this_tr and other_inf):
+                    violations.append(Violation(
+                        code="INF_OR_VS_TRASPLANT",
+                        message="No se permite quirófano infeccioso el mismo día que cirugías de trasplante."
                     ))
                     break
 
@@ -232,7 +236,7 @@ class Scheduler:
                 other_uses_ct=any(r.subtype=="tomografo" for r in other_res)
                 other_uses_rt=any(r.subtype in ("radioterapia","acelerador_lineal") for r in other_res)
 
-                if (uses_rt and other_uses_ct) or (uses_rt and other_uses_ct):
+                if (uses_ct and other_uses_rt) or (uses_rt and other_uses_ct):
                     violations.append(
                         Violation(
                             code="CT_VS_RADIOTHERAPY",
@@ -241,7 +245,6 @@ class Scheduler:
                     break
 
         return violations
-
 
     # BUSQUEDA INTELIGENTE DE HUECOS
     def find_next_slots(
