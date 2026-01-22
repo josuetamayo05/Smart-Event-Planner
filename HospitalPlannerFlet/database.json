@@ -6,7 +6,8 @@
       "kind": "physical",
       "subtype": "quirofano",
       "role": null,
-      "tags": []
+      "tags": [],
+      "quantity": 3
     },
     {
       "id": "DR_AN1",
@@ -50,7 +51,8 @@
           "sun": []
         },
         "blackouts": []
-      }
+      },
+      "quantity":1
     },
     {
       "id": "DR_CIR1",
@@ -94,7 +96,8 @@
           "sun": []
         },
         "blackouts": []
-      }
+      },
+      "quantity":1
     },
     {
       "id": "PACU1",
@@ -151,7 +154,8 @@
           ]
         },
         "blackouts": []
-      }
+      },
+      "quantity":4
     },
     {
       "id": "ENF1",
@@ -195,7 +199,8 @@
           "sun": []
         },
         "blackouts": []
-      }
+      },
+      "quantity":1
     },
     {
       "id": "ENF2",
@@ -239,7 +244,8 @@
           "sun": []
         },
         "blackouts": []
-      }
+      },
+      "quantity":1
     },
     {
       "id": "CT1",
@@ -283,7 +289,8 @@
           "sun": []
         },
         "blackouts": []
-      }
+      },
+      "quantity":2
     },
     {
       "id": "RT1",
@@ -327,7 +334,8 @@
           "sun": []
         },
         "blackouts": []
-      }
+      },
+      "quantity":2
     },
     {
       "id": "DR_CARD1",
@@ -373,7 +381,8 @@
           "sun": []
         },
         "blackouts": []
-      }
+      },
+      "quantity":1
     },
     {
       "id": "JATA",
@@ -381,7 +390,8 @@
       "kind": "physical",
       "subtype": null,
       "role": "Developer",
-      "tags": []
+      "tags": [],
+      "quantity":1
     },
     {
       "id": "dafa",
@@ -407,6 +417,16 @@
       "role": null,
       "tags": [
         "infeccioso"
+      ]
+    },
+    {
+      "id": "ILS",
+      "name": "Ilias",
+      "kind": "human",
+      "subtype": null,
+      "role": "anestesiologo",
+      "tags": [
+        "trasplante"
       ]
     }
   ],

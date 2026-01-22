@@ -11,6 +11,7 @@ class Resource:
     role: str | None = None
     tags:List[str] = field(default_factory=list)
     availability:Optional[Dict[str,Any]]=None
+    quantity:int=1
 
     @classmethod
     def from_dict(cls, data: dict) -> "Resource":
@@ -21,7 +22,8 @@ class Resource:
             subtype=data.get("subtype"),
             role=data.get("role"),
             tags=data.get("tags",[]),
-            availability=data.get("availability")
+            availability=data.get("availability"),
+            quantity=int(data.get("quantity",1))
         )
 
     def to_dict(self) -> dict:
@@ -32,6 +34,7 @@ class Resource:
             "subtype": self.subtype,
             "role": self.role,
             "tags": self.tags,
+            "quantity": self.quantity,
         }
         if self.availability is not None:
             d["availability"]=self.availability

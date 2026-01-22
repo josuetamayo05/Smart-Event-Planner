@@ -76,34 +76,87 @@ class ResourcesView:
                 value=(existing.get("role") if is_edit else None),
             )
 
-            existing_tags = set(existing.get("tags", [])) if is_edit else set()
+            selected_tags=set(existing.get("tags",[])) if is_edit else set()
+            tags_preview=ft.Text("") # resumen en una sola linea
 
-            tag_options = RESOURCE_CATALOG.get("Tags sugeridos", [])
-            tag_checks_col = ft.Column(spacing=2)
+            def refresh_tags_preview():
+                if not selected_tags:
+                    tags_preview.value = "Sin tags"
+                    tags_preview.color=ft.Colors.GREY_600
+                else:
+                    tags_preview.value=", ".join(sorted(selected_tags))
+                    tags_preview.color=None
 
-            def rebuild_tag_checks():
-                tag_checks_col.controls.clear()
-                for t in tag_options:
-                    code = t["code"]
-                    label = t["label"]
+            refresh_tags_preview()
 
-                    def on_tag_change(e, _code=code):
-                        if e.control.value:
-                            existing_tags.add(_code)
-                        else:
-                            existing_tags.discard(_code)
+            def open_tags_editor(_):
+                temp_tags=set(selected_tags)
+                tag_options=RESOURCE_CATALOG.get("Tags sugeridos", [])
+                checks_col=ft.Column(spacing=2)
 
-                    tag_checks_col.controls.append(
-                        ft.Checkbox(label=label, value=(code in existing_tags), on_change=on_tag_change)
-                    )
+                def rebuild_checks():
+                    checks_col.controls.clear()
+                    for t in tag_options:
+                        code=t["code"]
+                        label=t["label"]
 
-            rebuild_tag_checks()
+                        def on_change(e, _code=code):
+                            if e.control.value:
+                                temp_tags.add(_code)
+                            else:
+                                temp_tags.discard(_code)
 
-            custom_tags_tf = ft.TextField(
-                label="Tags extra (coma) (opcional)",
-                value="",
-                hint_text="Ej: esteril, pediatrico",
-            )
+                        checks_col.controls.append(
+                            ft.Checkbox(label=label,value=(code in temp_tags), on_change=on_change)
+                        )
+
+                rebuild_checks()
+
+                custom_tf=ft.TextField(
+                    label="Tags extra (coma) (opcional)",
+                    hint_text="Ej: esteril, pediatrico",
+                    value="",
+                )
+
+                tags_dlg=ft.AlertDialog(
+                    modal=True,
+                    title=ft.Text("Editar tags"),
+                    content=ft.Column(
+                        [
+                            ft.Text("Tags sugeridos"),
+                            ft.Container(
+                                checks_col,
+                                border=ft.border.all(1, ft.Colors.GREEN_300),
+                                padding=10,
+                                height=220,
+                            ),
+                            custom_tf,
+                        ],
+                        tight=True,
+                        scroll=ft.ScrollMode.AUTO,
+                        height=520,
+                    ),
+                    actions=[],
+                )
+
+                def on_save_tags(e):
+                    extra=[t.strip() for t in (custom_tf.value or "").split(",") if t.strip()]
+                    temp_tags.update(extra)
+                    
+                    selected_tags.clear()
+                    selected_tags.update(temp_tags)
+
+                    close_dialog(self.page,tags_dlg)
+                    refresh_tags_preview()
+                    self.page.update()
+                
+                tags_dlg.actions=[
+                    ft.TextButton("Cancelar", on_click=lambda e:close_dialog(self.page,tags_dlg)),
+                    ft.ElevatedButton("Guardar", on_click=on_save_tags),
+                ]
+                open_dialog(self.page,tags_dlg)
+
+            edit_tags_btn=ft.ElevatedButton("Editar tags", on_click=open_tags_editor)
 
             # Botones catálogo (dos instancias)
             def open_catalog_for_subtype(_):
@@ -194,6 +247,7 @@ class ResourcesView:
             kind_rg.on_change = on_kind_change
             apply_kind_state(update_ui=False)
 
+            # dialog pr
             dlg = ft.AlertDialog(
                 modal=True,
                 title=ft.Text("Editar recurso" if is_edit else "Nuevo recurso"),
@@ -205,14 +259,14 @@ class ResourcesView:
                         kind_rg,
                         subtype_row,
                         role_row,
-                        ft.Text("Tags sugeridos"),
-                        ft.Container(
-                            tag_checks_col,
-                            border=ft.border.all(1, ft.Colors.GREY_300),
-                            padding=10,
-                            height=140,
+                        ft.Row(
+                            [
+                                ft.Text("Tags",weight=ft.FontWeight.BOLD),
+                                edit_tags_btn,
+                            ],
+                            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                         ),
-                        custom_tags_tf,
+                        tags_preview
                     ],
                     tight=True,
                     scroll=ft.ScrollMode.AUTO,
@@ -246,8 +300,7 @@ class ResourcesView:
                     snack(self.page, "Selecciona un role para recursos humanos.")
                     return
 
-                extra = [t.strip() for t in (custom_tags_tf.value or "").split(",") if t.strip()]
-                tags = sorted(set(existing_tags).union(extra))
+                tags=sorted(set(selected_tags))
 
                 self.db.upsert_resource({
                     "id": rid,

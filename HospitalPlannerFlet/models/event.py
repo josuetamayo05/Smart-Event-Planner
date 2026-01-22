@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List
+from typing import List, Dict
 
 ISO_FMT="%Y-%m-%dT%H:%M"
 
@@ -14,6 +14,7 @@ class Event:
     start: datetime
     end: datetime
     resource_ids: List[str] = field(default_factory=list)
+    resource_units:Dict[str, int] = field(default_factory=dict)
 
     @classmethod
     def from_dict(cls, data: dict) -> "Event":
@@ -25,10 +26,11 @@ class Event:
             start=datetime.strptime(data["start"],ISO_FMT),
             end=datetime.strptime(data["end"],ISO_FMT),
             resource_ids=data.get("resource_ids",[]),
+            resource_units=data.get("resource_units",{})
         )
 
     def to_dict(self) -> dict:
-        return {
+        d= {
             "id": self.id,
             "name": self.name,
             "description": self.description,
@@ -37,3 +39,7 @@ class Event:
             "end": self.end.strftime(ISO_FMT),
             "resource_ids": self.resource_ids,
         }
+        if self.resource_units:
+            d["resource_units"] =self.resource_units
+            
+        return d
