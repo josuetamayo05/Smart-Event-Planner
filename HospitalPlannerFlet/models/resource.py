@@ -34,7 +34,7 @@ class Resource:
             "subtype": self.subtype,
             "role": self.role,
             "tags": self.tags,
-            "quantity": self.quantity,
+            "quantity": int(self.quantity or 1),
         }
         if self.availability is not None:
             d["availability"]=self.availability

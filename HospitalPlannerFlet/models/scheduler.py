@@ -38,6 +38,16 @@ class Scheduler:
     def _resources_by_id(self, ids: Iterable[str]) -> List[Resource]:
         all_res={r.id: r for r in self._all_resources()}
         return [all_res[rid] for rid in ids if rid in all_res]
+    
+    def _requested_units(self, ev:Event, rid:str)-> int:
+        if rid in ev.resource_units:
+            return int(ev.resource_units.get(rid,0))
+        return 1 if rid in ev.resource_ids else 0
+    
+    def _resource_quantity(self, rid: str)-> int:
+        rmap= {r.id: r for r in self._all_resources()}
+        r=rmap.get(rid)
+        return int(getattr(r,"quantity",1) or 1)
 
     #  disponibilidad basica
 
@@ -115,44 +125,61 @@ class Scheduler:
 
 
 
-    def is_resource_free(self, resource_id: str, start:datetime, end:datetime,
+    def is_resource_free(self, rid: str, resource_id: str, start:datetime, end:datetime, req_units:int=1,
                          ignore_event_id:Optional[str]=None) -> bool:
         
-        for ev in self._all_events():
-            if ignore_event_id and ev.id == ignore_event_id:
+        qty=self._resource_quantity(rid)
+        used=0
+        for other in self._all_events():
+            if ignore_event_id and other.id==ignore_event_id:
                 continue
-            if resource_id in ev.resource_ids and overlaps(ev.start, ev.end, start,end):
-                return False
-        return True
+            if overlaps(other.start,other.end, start, end):
+                used+=self._requested_units(other,rid)
+        return used+req_units<=qty
     
 
     def validate_event(self, event:Event) -> List[Violation]:
         violations:List[Violation]=[]
 
-        for rid in event.resource_ids:
-            #1 recursos no solapados
-            all_resources=self._all_resources()
-            if not self.is_resource_free(rid, event.start, event.end, ignore_event_id=event.id):
-                res= next((r for r in all_resources if r.id== rid), None)
-                name=res.name if res else rid
-                violations.append(
-                    Violation(
-                        code="RESOURCE_OVERLAP",
-                        message=f'El recurso {name} ya está ocupado en ese horario',
-                ))
-
+        #1 capacities
+        violations.extend(self._check_resource_capacity(event))
         #2 co-requisitos
         violations.extend(self._check_corequisites(event))
-
         #3 exclusiones mutuas
         violations.extend(self._mutual_corequisites(event))
-
         #4 blackouts and avaibilitys
         violations.extend(self._check_availability(event))
         
         return violations
     
     # ---------- co-requisitos ----------
+
+    def _check_resource_capacity(self,ev:Event)->List[Violation]:
+        violations:List[Violation]=[]
+        all_events=self._all_events()
+
+        # conjunto de recursos relevantes (por ids seleccionados + resource_units)
+        relevant_ids = set(ev.resource_ids) | set(ev.resource_units.keys())
+
+        for rid in relevant_ids:
+            qty = self._resource_quantity(rid)
+            req = self._requested_units(ev,rid)
+            if req<=0:continue 
+
+            used=0
+            for other in all_events:
+                if other.id==ev.id:
+                    continue
+                if overlaps(other.start, other.end,ev.start,ev.end):
+                    used+=self._requested_units(other, rid)
+                
+            if used+req>qty:
+                violations.append(Violation(
+                    code="RESOURCE_CAPACITY_EXCEEDED",
+                    message=f"Recurso: '{rid}': ocupado {used}/{qty} unidades. Solicitadas {req} unidades."
+                ))
+        return violations
+
 
     def _check_corequisites(self, event: Event) -> List[Violation]:
         violations:List[Violation]=[]
@@ -281,7 +308,7 @@ class Scheduler:
         while current + duration <= limit and len(results) < max_results:
             end=current + duration
             #todos los recursos filtro deben estar libres
-            all_free=all(self.is_resource_free(r.id,current,end) for r in candidate_resources)
+            all_free=all(self.is_resource_free(r.id,current,end,req_units=1) for r in candidate_resources)
             if all_free:
                 dummy=Event(
                     id="__dummy__",
@@ -346,7 +373,7 @@ class Scheduler:
             end=current+duration
 
             # 1) fijos libres
-            if not all(self.is_resource_free(rid, current, end) for rid in fixed_ids):
+            if not all(self.is_resource_free(rid, current, end, req_units=1) for rid in fixed_ids):
                 current += step
                 continue
 
