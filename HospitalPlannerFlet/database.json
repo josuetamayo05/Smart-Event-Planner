@@ -534,6 +534,63 @@
       "resource_units": {
         "CAMARA": 1
       }
+    },
+    {
+      "id": "152c273c-38dc-4808-8c6a-7c51848610f5",
+      "name": "Uso cámara A",
+      "description": "",
+      "event_type": "consulta_cardiologia",
+      "start": "2026-02-01T10:00",
+      "end": "2026-02-01T11:00",
+      "resource_ids": [
+        "CAMARA"
+      ],
+      "resource_units": {
+        "CAMARA": 1
+      }
+    },
+    {
+      "id": "a0b4949e-e2ba-44f0-8ccf-3cc82a8fab13",
+      "name": "dasda",
+      "description": "",
+      "event_type": "trasplante",
+      "start": "2026-01-23T10:00",
+      "end": "2026-01-23T11:00",
+      "resource_ids": [
+        "CAMARA"
+      ],
+      "resource_units": {
+        "CAMARA": 1
+      }
+    },
+    {
+      "id": "acf4e144-bfe8-44c7-8852-67baabf28223",
+      "name": "trasplante23",
+      "description": "",
+      "event_type": "trasplante",
+      "start": "2026-01-23T10:30",
+      "end": "2026-01-23T11:30",
+      "resource_ids": [
+        "CAMARA"
+      ],
+      "resource_units": {
+        "CAMARA": 1
+      }
+    },
+    {
+      "id": "fe4253d8-db6f-4aa7-a478-0b837ec07d58",
+      "name": "1414141",
+      "description": "",
+      "event_type": "cirugia_general",
+      "start": "2026-01-26T08:00",
+      "end": "2026-01-26T10:00",
+      "resource_ids": [
+        "Q2",
+        "ENF1",
+        "ENF2",
+        "DR_AN1",
+        "DR_CIR1"
+      ]
     }
   ],
   "constraints": {

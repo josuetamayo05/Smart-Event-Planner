@@ -69,8 +69,10 @@ class Scheduler:
         day_key=WEEKDAY_KEYS[event.start.weekday()]
         start_min=event.start.hour *60+event.start.minute
         end_min=event.end.hour * 60 + event.end.minute
+        
+        relevant_ids=set(event.resource_ids)| set(event.resource_units.keys())
 
-        for rid in event.resource_ids:
+        for rid in relevant_ids:
             r=res_map.get(rid)
             if not r: continue
 
@@ -125,7 +127,7 @@ class Scheduler:
 
 
 
-    def is_resource_free(self, rid: str, resource_id: str, start:datetime, end:datetime, req_units:int=1,
+    def is_resource_free(self, rid: str, start:datetime, end:datetime, req_units:int=1,
                          ignore_event_id:Optional[str]=None) -> bool:
         
         qty=self._resource_quantity(rid)
@@ -373,7 +375,7 @@ class Scheduler:
             end=current+duration
 
             # 1) fijos libres
-            if not all(self.is_resource_free(rid, current, end, req_units=1) for rid in fixed_ids):
+            if not all(self.is_resource_free(rid,current, end, req_units=1) for rid in fixed_ids):
                 current += step
                 continue
 

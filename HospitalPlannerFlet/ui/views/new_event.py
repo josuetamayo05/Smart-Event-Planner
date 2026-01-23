@@ -6,6 +6,7 @@ from uuid import uuid4
 from ui.dialogs import snack, show_dialog, open_dialog, close_dialog
 from ui.time_utils import parse_dt
 from models.event import Event
+
 from ui.catalogs.event_types import EVENT_TYPES
 
 class NewEventView:
@@ -32,8 +33,12 @@ class NewEventView:
         self.validation_text = ft.Text("")
         self.resources_column = ft.Column(spacing=2)
 
-        for tf in (self.name_tf, self.type_tf, self.date_tf, self.start_tf, self.end_tf):
-            tf.on_change = lambda e: self.quick_validate()
+        self.name_tf.on_change = lambda e: self.quick_validate()
+        self.date_tf.on_change = lambda e: self.quick_validate()
+        self.start_tf.on_change = lambda e: self.quick_validate()
+        self.end_tf.on_change = lambda e: self.quick_validate()
+        self.type_tf.on_change = lambda e: self.quick_validate()  
+        self.duration_tf.on_change = lambda e: self.quick_validate()  
 
         # panel desplegable
         
@@ -116,26 +121,76 @@ class NewEventView:
         self.start_tf.value = start_hhmm
         self.end_tf.value = end_hhmm
 
-    def build_resources_checklist(self, preselected=None):
+    def build_resources_checklist(self, preselected=None,preselected_units=None):
         preselected = set(preselected or [])
+        preselected_units=dict(preselected_units or {})
+
         self.resources_column.controls.clear()
         self.state.selected_resource_ids.clear()
         self.state.selected_resource_ids.update(preselected)
 
+        self.state.resource_units.clear()
+        # cargar unidades preseleccionadas si vienen
+        for rid,u in preselected_units.items():
+            self.state.resource_units[rid]=int(u)
+
         for r in self.db.list_resources():
             rid = r["id"]   
             rname = r.get("name", rid)
+            qty=int(r.get("quantity",1)or 1)
 
-            def on_change(e, _rid=rid):
+            # selector de unidades para pool
+            units_dd=None
+            if qty>1:
+                #valor por defecto si esta seleccionado
+                default_units=self.state.resource_units.get(rid,1)
+                default_units=max(1,min(qty,default_units))
+
+                units_dd=ft.Dropdown(
+                    width=120,
+                    label="Unid.",
+                    value=str(default_units),
+                    options=[ft.dropdown.Option(str(i), str(i)) for i in range(1, qty + 1)],
+                    disabled=(rid not in preselected),
+                )
+
+                def on_units_change(e,_rid=rid):
+                    self.state.resource_units[_rid]=int(e.control.value or 1)
+                    self.quick_validate()
+            
+                units_dd.on_change=on_units_change
+            
+            #checkbox del producto
+            cb=ft.Checkbox(label=rname, value=(rid in preselected))
+
+            def on_check_change(e,_rid=rid,_qty=qty, _units_dd=units_dd):
                 if e.control.value:
                     self.state.selected_resource_ids.add(_rid)
+                    # si es pool, setea unidades por defecto y habilita dropdown
+                    if _qty>1:
+                        self.state.resource_units[_rid]=int((_units_dd.value or "1"))
+                        _units_dd.disabled=False
+                        _units_dd.update()
                 else:
                     self.state.selected_resource_ids.discard(_rid)
-                self.quick_validate()
+                    # si es pool, limpiar unidades y resetear dropdown
+                    if _qty>1:
+                        self.state.resource_units.pop(_rid, None)
+                        _units_dd.disabled=True
+                        _units_dd.update()
 
-            self.resources_column.controls.append(
-                ft.Checkbox(label=rname, value=(rid in preselected), on_change=on_change)
-            )
+                self.quick_validate()
+            
+            cb.on_change=on_check_change
+
+            # layout por fila: checkbox + (unidades si aplica)
+            row_controls = [ft.Container(cb, expand=True)]
+            if units_dd is not None:
+                row_controls.append(units_dd)
+
+            self.resources_column.controls.append(ft.Row(row_controls, alignment=ft.MainAxisAlignment.SPACE_BETWEEN))
+            self.page.update()
+            self.quick_validate()
 
     def quick_validate(self):
         self.validation_text.value = ""
@@ -169,6 +224,7 @@ class NewEventView:
             start=start_dt,
             end=end_dt,
             resource_ids=list(self.state.selected_resource_ids),
+            resource_units=dict(self.state.resource_units),
         )
         violations = self.scheduler.validate_event(temp)
         if violations:
@@ -222,7 +278,11 @@ class NewEventView:
             self.end_tf.value = slot.end.strftime("%H:%M")
 
             pre = [r.id for r in slot.resources]
-            self.build_resources_checklist(preselected=pre)
+            units={}
+            for r in slot.resources:
+                if getattr(r,"quantity",1)>1:
+                    units[r.id]=1
+            self.build_resources_checklist(preselected=pre,preselected_units=units)
             self.quick_validate()
             self.page.update()
             snack(self.page, "Horario y recursos aplicados al formulario.")
@@ -245,6 +305,24 @@ class NewEventView:
                 )
             )
 
+        self.page.update()
+
+    def reset_form(self):
+        self.name_tf.value = ""
+        self.type_tf.value = None
+        self.date_tf.value = str(date.today())
+        self.start_tf.value = "09:00"
+        self.end_tf.value = "11:00"
+        self.duration_tf.value = "120"
+
+        self.slots_column.controls.clear()
+        self.validation_text.value = ""
+        self.validation_text.color = None
+
+        self.state.selected_resource_ids.clear()
+        self.state.resource_units.clear()
+
+        self.build_resources_checklist(preselected=[], preselected_units={})
         self.page.update()
 
     def on_save(self, _):
@@ -280,6 +358,7 @@ class NewEventView:
             start=start_dt,
             end=end_dt,
             resource_ids=list(self.state.selected_resource_ids),
+            resource_units=dict(self.state.resource_units)
         )
 
         violations = self.scheduler.validate_event(ev)
@@ -288,5 +367,7 @@ class NewEventView:
             return
 
         self.db.upsert_event(ev.to_dict())
-        snack(self.page, "Evento guardado.")
+        self.db.upsert_event(ev.to_dict())
+        show_dialog(self.page, "Éxito", "Evento guardado correctamente.")  # más visible que snack
         self.on_any_change()
+        self.reset_form()
