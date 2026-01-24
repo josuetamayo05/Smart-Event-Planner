@@ -7,6 +7,7 @@ from ui.dialogs import snack, show_dialog, open_dialog, close_dialog
 from ui.time_utils import parse_dt
 from models.event import Event
 
+from ui.design import prime_color, sec_color, light_color, dark_color, white_color, text_on_dark, text_on_light
 from ui.catalogs.event_types import EVENT_TYPES
 
 class NewEventView:
@@ -22,11 +23,11 @@ class NewEventView:
             for it in items:
                 flat_options.append(ft.dropdown.Option(it["code"],it["label"]))
 
-        self.name_tf = ft.TextField(label="Nombre del evento")
-        self.type_tf = ft.Dropdown(label="Tipo de evento", options=flat_options)
-        self.date_tf = ft.TextField(label="Fecha (YYYY-MM-DD)", value=str(date.today()))
-        self.start_tf = ft.TextField(label="Hora inicio (HH:MM)", value="09:00")
-        self.end_tf = ft.TextField(label="Hora fin (HH:MM)", value="11:00")
+        self.name_tf = ft.TextField(label="Nombre del evento",border_color=prime_color, color="black")
+        self.type_tf = ft.Dropdown(label="Tipo de evento", options=flat_options,border_color=prime_color,color="black")
+        self.date_tf = ft.TextField(label="Fecha (YYYY-MM-DD)", value=str(date.today()),border_color=prime_color,color="black")
+        self.start_tf = ft.TextField(label="Hora inicio (HH:MM)", value="09:00",border_color=prime_color,color="black")
+        self.end_tf = ft.TextField(label="Hora fin (HH:MM)", value="11:00",border_color=prime_color,color="black")
 
         self.duration_tf = ft.TextField(label="Duración (minutos)", value="120")
         self.slots_column = ft.Column(spacing=6)
@@ -40,8 +41,9 @@ class NewEventView:
         self.type_tf.on_change = lambda e: self.quick_validate()  
         self.duration_tf.on_change = lambda e: self.quick_validate()  
 
+        self.type_tf.border_color=prime_color
+
         # panel desplegable
-        
         def open_catalog(_):
             # función que se llama al hacer click en un item
             def pick_type(it: dict):
@@ -84,9 +86,25 @@ class NewEventView:
 
         self.open_catalog_btn = ft.ElevatedButton("Mostrar catálogo", on_click=open_catalog)
 
+        #helper
+        def section(title: str, content: ft.Control):
+            return ft.Container(
+                padding=14,
+                border_radius=14,
+                bgcolor=white_color,
+                border=ft.border.all(1, ft.Colors.with_opacity(0.08, ft.Colors.BLACK)),
+                content=ft.Column(
+                    [
+                        ft.Text(title, size=14, weight=ft.FontWeight.W_700, color=prime_color),
+                        content,
+                    ],
+                    spacing=10,
+                ),
+            )
+
         form_panel = ft.Column(
             [
-                ft.Text("Nuevo evento", size=22, weight=ft.FontWeight.BOLD),
+                ft.Text("Nuevo evento", size=24, weight=ft.FontWeight.BOLD, color=prime_color),
                 self.name_tf,
                 ft.Row(
                     [
@@ -95,19 +113,30 @@ class NewEventView:
                     ],
                 ),
                 ft.Row([self.date_tf, self.start_tf, self.end_tf]),
-                self.validation_text,
+                ft.Container(
+                    padding=10,
+                    border_radius=12,
+                    bgcolor=ft.Colors.with_opacity(0.08, ft.Colors.BLACK),
+                    content=self.validation_text,
+                ),
 
-                ft.Divider(),
-                ft.Text("Recursos (elige el fijo, ej: OR1)", size=16),
-                ft.Container(self.resources_column, border=ft.border.all(1, ft.Colors.GREY_300), padding=10),
+                section("Recursos (elige el fijo, ej: OR1)",ft.Container(self.resources_column, padding=6),
+                ),
+                section("Búsqueda inteligente (autofill)",
+                    ft.Column(
+                        [
+                            self.duration_tf,
+                            ft.ElevatedButton("Buscar próximo horario disponible",bgcolor=sec_color,
+                                color="white",
+                                on_click=self.on_find_slots,
+                            ),
+                            self.slots_column,
+                        ],
+                        spacing=10,
+                    ),
+                ),
 
-                ft.Divider(),
-                ft.Text("Búsqueda inteligente (autofill)", size=16, weight=ft.FontWeight.BOLD),
-                self.duration_tf,
-                ft.ElevatedButton("Buscar próximo horario disponible", on_click=self.on_find_slots),
-                self.slots_column,
-
-                ft.ElevatedButton("Guardar", on_click=self.on_save),
+                ft.ElevatedButton("Guardar", bgcolor=prime_color,color="white",on_click=self.on_save),
             ],
             scroll=ft.ScrollMode.AUTO,
             expand=True,
@@ -189,8 +218,8 @@ class NewEventView:
                 row_controls.append(units_dd)
 
             self.resources_column.controls.append(ft.Row(row_controls, alignment=ft.MainAxisAlignment.SPACE_BETWEEN))
-            self.page.update()
-            self.quick_validate()
+        self.page.update()
+        self.quick_validate()
 
     def quick_validate(self):
         self.validation_text.value = ""
@@ -366,7 +395,6 @@ class NewEventView:
             show_dialog(self.page, "Conflictos detectados", "\n".join(f"• {v.message}" for v in violations))
             return
 
-        self.db.upsert_event(ev.to_dict())
         self.db.upsert_event(ev.to_dict())
         show_dialog(self.page, "Éxito", "Evento guardado correctamente.")  # más visible que snack
         self.on_any_change()
