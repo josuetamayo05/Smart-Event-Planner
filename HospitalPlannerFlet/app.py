@@ -9,7 +9,7 @@ from models.event import Event
 def main(page: ft.Page):
     page.title = "Planificador hospitalario"
     try:
-        page.window.width=1200
+        page.window.width=700
         page.window.height=720
     except Exception:
         pass

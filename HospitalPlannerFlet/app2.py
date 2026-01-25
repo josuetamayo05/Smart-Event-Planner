@@ -13,7 +13,7 @@ from ui.views.events import EventsView
 from ui.views.resources import ResourcesView
 from ui.views.new_event import NewEventView
 from ui.views.calendar_day import CalendarDayView
-
+from ui.views.search import SearchView
 
 def main(page: ft.Page):
     auth=AuthManager("users.json")
@@ -21,9 +21,8 @@ def main(page: ft.Page):
     def show_login():
         page.controls.clear()
         page.bgcolor = light_color
-        page.window_height = 500
-        page.window_width = 350
-        page.window_resizable = False
+        page.window.width = 900
+        page.window.height = 620
         page.padding = 0
 
         login_view = LoginView(page, auth, on_success=start_app)
@@ -35,11 +34,8 @@ def main(page: ft.Page):
         page.overlay.clear()
 
         page.title = "Planificador hospitalario"
-        page.window_width = 1000
-        page.window_height = 600
-        page.padding = 0
-        page.window_resizable = False
-        page.window_maximizable = False 
+        page.window.width = 900
+        page.window.height = 620
         page.padding = 0
 
         db = DatabaseManager("database.json")
@@ -150,11 +146,14 @@ def main(page: ft.Page):
                 nav_item("Nuevo evento", ft.Icons.ADD, 2),
                 nav_item("Calendario", ft.Icons.CALENDAR_MONTH, 3),
                 nav_item("Recursos", ft.Icons.MEDICAL_SERVICES, 4),
+                nav_item("Buscar",ft.Icons.SEARCH,5),
                 ft.Container(expand=True),
                 ft.Text("v1.0", size=10, color=prime_color),
             ],
             spacing=10,
         )
+
+        search_view=None
 
         def show_screen(idx: int):
             state.selected_index = idx
@@ -175,11 +174,16 @@ def main(page: ft.Page):
             elif idx == 4:
                 resources.refresh()
                 right_container.content = resources.view
+            elif idx == 5:
+                if search_view is not None:
+                    search_view.refresh()
+                    right_container.content=search_view.view
 
             # refrescar sidebar (para resaltar item seleccionado)
-            left_container.content = left_container.content
             page.update()
             refresh_nav()
+        
+        search_view=SearchView(page,db,go_to=show_screen)
 
         main_row = ft.Row([left_container, ft.VerticalDivider(width=1), right_container], spacing=0, expand=True)
 
