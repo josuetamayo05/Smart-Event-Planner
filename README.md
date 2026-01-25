@@ -1,102 +1,113 @@
+<div align="center">
+
 # HospitalPlannerFlet
 
-Planificador inteligente de eventos para hospitales, construido con **Python + Flet**, diseñado para organizar **eventos** (procedimientos, cirugías, consultas, etc.) y administrar **recursos** (humanos y físicos) con reglas que evitan conflictos de uso simultáneo.
+**Planificador inteligente de eventos para entornos hospitalarios**  
+Construido con **Python + Flet** para escritorio (Windows).  
+Gestión de **eventos**, **recursos** y validación de **conflictos** de disponibilidad en tiempo real.
+
+<br/>
+
+![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)
+![Flet](https://img.shields.io/badge/Flet-UI-0B5FFF)
+![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?logo=windows&logoColor=white)
+
+</div>
 
 ---
 
-## Tabla de contenido
-- [Descripción](#descripción)
-- [Capturas](#capturas)
-- [Características](#características)
-- [Tecnologías](#tecnologías)
-- [Ejecución (Windows)](#ejecución-windows)
-- [Estructura del proyecto](#estructura-del-proyecto)
-- [Notas](#notas)
-- [Licencia](#licencia)
+## Overview
 
----
+**HospitalPlannerFlet** es una aplicación de escritorio diseñada para planificar eventos clínicos (cirugías, consultas, procedimientos, etc.) asignando recursos (físicos y humanos) de manera consistente.
 
-## Descripción
-
-**HospitalPlannerFlet** es una aplicación de escritorio pensada para entornos hospitalarios que necesitan programar eventos y asignar recursos de forma consistente.  
-El sistema permite gestionar:
-
-- **Eventos** (inicio/fin, tipo, nombre, recursos asignados).
-- **Recursos** (físicos y humanos) y sus atributos.
-- **Calendario diario** con selección de slots.
-- **Búsqueda global** de eventos y recursos.
-- Un flujo de creación de eventos con validación para evitar colisiones.
-
-> El motor de validación/reglas se encarga de detectar conflictos (por ejemplo, recursos no disponibles o uso simultáneo).  
-> (La explicación completa de reglas y restricciones se puede ampliar en futuras versiones del README.)
+El sistema ayuda a evitar errores comunes como:
+- asignar el mismo recurso a múltiples eventos en el mismo rango horario,
+- crear eventos con horarios inválidos,
+- organizar la agenda diaria con slots clickeables y búsqueda rápida.
 
 ---
 
 ## Capturas
 
-> Las imágenes están en `HospitalPlannerFlet/assets/`.
+> Ubicación: `HospitalPlannerFlet/assets/`
 
-### Login
-![Login](assets/Login.png)
+<table>
+  <tr>
+    <td align="center"><b>Login</b></td>
+    <td align="center"><b>Search</b></td>
+  </tr>
+  <tr>
+    <td><img src="HospitalPlannerFlet/assets/Login.png" alt="Login" width="420"/></td>
+    <td><img src="HospitalPlannerFlet/assets/Search.png" alt="Search" width="420"/></td>
+  </tr>
 
-### Dashboard
-> (Si luego agregas captura del dashboard, se puede incluir aquí.)
+  <tr>
+    <td align="center"><b>Resources</b></td>
+    <td align="center"><b>Events</b></td>
+  </tr>
+  <tr>
+    <td><img src="HospitalPlannerFlet/assets/Resources.png" alt="Resources" width="420"/></td>
+    <td><img src="HospitalPlannerFlet/assets/Events.png" alt="Events" width="420"/></td>
+  </tr>
+
+  <tr>
+    <td align="center"><b>NewEvent</b></td>
+    <td align="center"><b>Calendar</b></td>
+  </tr>
+  <tr>
+    <td><img src="HospitalPlannerFlet/assets/NewEvent.png" alt="NewEvent" width="420"/></td>
+    <td><img src="HospitalPlannerFlet/assets/Calendar.png" alt="Calendar" width="420"/></td>
+  </tr>
+</table>
+
+---
+
+## Funcionalidades principales
 
 ### Eventos
-![Events](assets/Events.png)
-
-### Nuevo Evento
-![NewEvent](assets/NewEvent.png)
-
-### Calendario
-![Calendar](assets/Calendar.png)
+- Listado de eventos ordenados por fecha/hora.
+- Edición y eliminación.
+- Validación antes de guardar (conflictos detectados por el scheduler).
 
 ### Recursos
-![Resources](assets/Resources.png)
+- Gestión de recursos físicos y humanos.
+- Campos típicos: `kind`, `subtype`, `role`, `tags`, `quantity`.
+- Catálogos integrados para selección rápida.
 
-### Search
-![Search](assets/Search.png)
+### Calendario diario
+- Vista por día con slots clickeables.
+- Selección rápida de rangos para crear eventos.
 
----
+### Búsqueda
+- Búsqueda global por tokens.
+- Filtros: Todo / Eventos / Recursos.
 
-## Características
-
-- **Interfaz moderna (PC/Desktop)** hecha con Flet.
-- **Gestión de eventos**
-  - Crear / editar / eliminar eventos.
-  - Validación antes de guardar (conflictos, datos inválidos, etc.).
-- **Gestión de recursos**
-  - Recursos físicos y humanos.
-  - Campos como `kind`, `subtype`, `role`, `tags`, etc.
-- **Calendario diario**
-  - Visualización por día con slots clickeables.
-  - Selección rápida de horarios.
-- **Búsqueda**
-  - Buscador global con filtro por: Todo / Eventos / Recursos.
-- **Autenticación local**
-  - Login por archivo (`users.json`) mediante `AuthManager`.
-
----
-
-## Tecnologías
-
-- **Python**
-- **Flet** (UI de escritorio)
-- Almacenamiento local mediante **JSON** (usuarios) y base local del proyecto
+### Autenticación local
+- Login usando un archivo `users.json`.
+- Roles disponibles vía `AuthManager` (`admin`, `staff`, etc.).
 
 ---
 
 ## Ejecución (Windows)
 
-### Requisitos
-- Windows
-- Python instalado (recomendado 3.10+)
-- El repositorio incluye un entorno virtual `venv` (según tu estructura)
+> La app se ejecuta desde la carpeta `HospitalPlannerFlet` usando el Python del `venv`.
 
-### Pasos
-
-1) Abre una terminal en la carpeta del repositorio.
-
-2) Entra al directorio del proyecto:
 ```bat
+REM 1) Entrar al directorio del proyecto
 cd HospitalPlannerFlet
+
+REM 2) Ejecutar la aplicación
+venv\Scripts\python.exe app.py
+
+REM (Opcional) Crear el entorno virtual
+REM Solo si venv\ no existe en tu máquina
+python -m venv venv
+
+REM (Opcional) Instalar dependencias
+REM Solo si existe requirements.txt dentro de HospitalPlannerFlet\
+venv\Scripts\pip.exe install -r requirements.txt
+Notas
+La app es de escritorio (PC/Windows) y usa autenticación local mediante users.json.
+El planificador valida conflictos (recursos no disponibles / choques de horario) antes de guardar cambios.
+Licencia
+Define la licencia que prefieras (MIT recomendada para empezar) y agrega un archivo LICENSE en la raíz del repositorio.
