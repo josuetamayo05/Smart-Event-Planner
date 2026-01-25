@@ -531,6 +531,21 @@
       "resource_units": {
         "PACU1": 1
       }
+    },
+    {
+      "id": "156bc045-cea0-4690-8499-4f968d869ac0",
+      "name": "cirujas",
+      "description": "",
+      "event_type": "trasplante",
+      "start": "2026-01-26T08:00",
+      "end": "2026-01-26T10:00",
+      "resource_ids": [
+        "DR_AN1",
+        "ENF1",
+        "OR1",
+        "DR_CIR1",
+        "ENF2"
+      ]
     }
   ],
   "constraints": {
