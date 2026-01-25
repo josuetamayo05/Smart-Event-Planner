@@ -2,7 +2,7 @@
 
 # 🏥 HospitalPlannerFlet
 
-<img src="HospitalPlannerFlet/assets/Calendar.png" alt="HospitalPlannerFlet Preview" width="600"/>
+<img src="HospitalPlannerFlet/assets/Dashboard.png" alt="HospitalPlannerFlet Preview" width="600"/>
 
 <br/>
 
