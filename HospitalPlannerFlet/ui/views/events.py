@@ -4,6 +4,7 @@ from uuid import uuid4
 
 from ui.dialogs import snack, open_dialog, close_dialog, show_dialog
 from ui.time_utils import parse_dt
+from ui.design import *
 from models.event import Event
 
 class EventsView:
@@ -16,20 +17,144 @@ class EventsView:
 
     def refresh(self):
         self.view.controls.clear()
-        self.view.controls.append(ft.Text("Eventos", size=22, weight=ft.FontWeight.BOLD))
+
+        # --- UI helpers (solo diseño) ---
+        def card(content, padding=16, radius=18):
+            return ft.Container(
+                padding=padding,
+                border_radius=radius,
+                bgcolor=ft.Colors.WHITE,
+                border=ft.border.all(1, ft.Colors.GREY_200),
+                shadow=[
+                    ft.BoxShadow(
+                        blur_radius=22,
+                        spread_radius=1,
+                        color=ft.Colors.BLACK12,
+                        offset=ft.Offset(0, 10),
+                    )
+                ],
+                content=content,
+            )
+
+        def pill(text: str, icon):
+            return ft.Container(
+                padding=ft.padding.symmetric(horizontal=12, vertical=8),
+                border_radius=999,
+                bgcolor=white_color,
+                border=ft.border.all(1, ft.Colors.GREY_200),
+                content=ft.Row(
+                    spacing=8,
+                    tight=True,
+                    controls=[
+                        ft.Icon(icon, size=18, color=sec_color),
+                        ft.Text(text, size=13, weight=ft.FontWeight.BOLD, color=text_on_light),
+                    ],
+                ),
+            )
+
+        # ---------------------------
+        # Header moderno (gradiente)
+        # ---------------------------
+        header = ft.Container(
+            padding=18,
+            border_radius=22,
+            gradient=ft.LinearGradient(
+                begin=ft.Alignment(-1, -1),
+                end=ft.Alignment(1, 1),
+                colors=[prime_color, sec_color],
+            ),
+            shadow=[ft.BoxShadow(blur_radius=22, color=ft.Colors.BLACK12, offset=ft.Offset(0, 10))],
+            content=ft.Row(
+                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                controls=[
+                    ft.Row(
+                        spacing=12,
+                        vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                        controls=[
+                            ft.Container(
+                                width=44,
+                                height=44,
+                                border_radius=16,
+                                bgcolor=ft.Colors.WHITE,
+                                alignment=ft.Alignment(0, 0),
+                                content=ft.Icon(ft.Icons.EVENT_NOTE_OUTLINED, color=prime_color, size=22),
+                            ),
+                            ft.Column(
+                                spacing=2,
+                                controls=[
+                                    ft.Text("Eventos", size=22, weight=ft.FontWeight.BOLD, color="white"),
+                                    ft.Text("Edita horarios y asignación de recursos", size=13, color=ft.Colors.WHITE),
+                                ],
+                            ),
+                        ],
+                    ),
+                    ft.Container(
+                        padding=10,
+                        border_radius=16,
+                        bgcolor=ft.Colors.WHITE,
+                        content=ft.Icon(ft.Icons.CALENDAR_MONTH_OUTLINED, color=prime_color, size=22),
+                    ),
+                ],
+            ),
+        )
+        self.view.controls.append(header)
 
         events = sorted(self.db.list_events(), key=lambda x: x.get("start", ""))
+
+        # Empty state (solo diseño)
         if not events:
-            self.view.controls.append(ft.Text("No hay eventos."))
+            self.view.controls.append(
+                card(
+                    ft.Column(
+                        spacing=8,
+                        controls=[
+                            ft.Row(
+                                spacing=10,
+                                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                controls=[
+                                    ft.Icon(ft.Icons.INFO_OUTLINE, color=sec_color),
+                                    ft.Text("No hay eventos.", size=14, color=text_on_light, weight=ft.FontWeight.BOLD),
+                                ],
+                            ),
+                            ft.Text(
+                                "Cuando existan eventos, aquí podrás editarlos y gestionar conflictos.",
+                                size=12,
+                                color=ft.Colors.GREY_700,
+                            ),
+                        ],
+                    ),
+                    padding=16,
+                    radius=18,
+                )
+            )
             return
 
+        # Barra de info arriba (solo diseño)
+        info_bar = ft.Row(
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            controls=[
+                pill(f"Total: {len(events)}", ft.Icons.LIST_ALT),
+                pill("Tip: usa ✏️ para editar", ft.Icons.TIPS_AND_UPDATES_OUTLINED),
+            ],
+        )
+        self.view.controls.append(card(info_bar, padding=14, radius=18))
+
         table = ft.DataTable(
+            column_spacing=18,
+            horizontal_margin=12,
+            divider_thickness=0.6,
+            heading_row_height=46,
+            data_row_min_height=46,
+            data_row_max_height=56,
+            # Nota: en 0.80.2 algunas props visuales varían; evitamos las no esenciales
             columns=[
-                ft.DataColumn(ft.Text("Inicio")),
-                ft.DataColumn(ft.Text("Fin")),
-                ft.DataColumn(ft.Text("Nombre")),
-                ft.DataColumn(ft.Text("Tipo")),
-                ft.DataColumn(ft.Text("Acciones")),
+                ft.DataColumn(ft.Text("Inicio", weight=ft.FontWeight.BOLD, color=text_on_light)),
+                ft.DataColumn(ft.Text("Fin", weight=ft.FontWeight.BOLD, color=text_on_light)),
+                ft.DataColumn(ft.Text("Nombre", weight=ft.FontWeight.BOLD, color=text_on_light)),
+                ft.DataColumn(ft.Text("Tipo", weight=ft.FontWeight.BOLD, color=text_on_light)),
+                ft.DataColumn(ft.Text("Acciones", weight=ft.FontWeight.BOLD, color=text_on_light)),
             ],
             rows=[],
         )
@@ -73,15 +198,45 @@ class EventsView:
 
             dlg = ft.AlertDialog(
                 modal=True,
-                title=ft.Text("Editar evento"),
-                content=ft.Column(
-                    [
-                        name_edit, type_edit,
-                        ft.Row([date_edit, start_edit, end_edit]),
-                        ft.Text("Recursos"),
-                        ft.Container(res_col, border=ft.border.all(1, ft.Colors.GREY_300), padding=10, height=180),
+                bgcolor=ft.Colors.WHITE,
+                title=ft.Row(
+                    spacing=10,
+                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                    controls=[
+                        ft.Container(
+                            width=38,
+                            height=38,
+                            border_radius=14,
+                            bgcolor=white_color,
+                            border=ft.border.all(1, ft.Colors.GREY_200),
+                            alignment=ft.Alignment(0, 0),
+                            content=ft.Icon(ft.Icons.EDIT_CALENDAR_OUTLINED, color=prime_color, size=20),
+                        ),
+                        ft.Text("Editar evento", size=18, weight=ft.FontWeight.BOLD, color=text_on_light),
                     ],
-                    tight=True, scroll=ft.ScrollMode.AUTO, height=520
+                ),
+                content=ft.Container(
+                    width=560,
+                    padding=16,
+                    border_radius=18,
+                    bgcolor=white_color,
+                    border=ft.border.all(1, ft.Colors.GREY_200),
+                    content=ft.Column(
+                        [
+                            name_edit, type_edit,
+                            ft.Row([date_edit, start_edit, end_edit]),
+                            ft.Text("Recursos", weight=ft.FontWeight.BOLD, color=text_on_light),
+                            ft.Container(
+                                res_col,
+                                border=ft.border.all(1, ft.Colors.GREY_300),
+                                border_radius=14,
+                                padding=10,
+                                height=180,
+                                bgcolor=ft.Colors.WHITE,
+                            ),
+                        ],
+                        tight=True, scroll=ft.ScrollMode.AUTO, height=520
+                    ),
                 ),
                 actions=[],
             )
@@ -126,7 +281,16 @@ class EventsView:
 
             dlg.actions = [
                 ft.TextButton("Cancelar", on_click=lambda e: close_dialog(self.page, dlg)),
-                ft.ElevatedButton("Guardar cambios", on_click=on_save),
+                ft.ElevatedButton(
+                    "Guardar cambios",
+                    on_click=on_save,
+                    bgcolor=prime_color,
+                    color="white",
+                    style=ft.ButtonStyle(
+                        shape=ft.RoundedRectangleBorder(radius=14),
+                        padding=ft.padding.symmetric(horizontal=18, vertical=12),
+                    ),
+                ),
             ]
             open_dialog(self.page, dlg)
 
@@ -134,17 +298,25 @@ class EventsView:
             table.rows.append(
                 ft.DataRow(
                     cells=[
-                        ft.DataCell(ft.Text(e.get("start", ""))),
-                        ft.DataCell(ft.Text(e.get("end", ""))),
-                        ft.DataCell(ft.Text(e.get("name", ""))),
-                        ft.DataCell(ft.Text(e.get("event_type", ""))),
+                        ft.DataCell(ft.Text(e.get("start", ""), color=text_on_light)),
+                        ft.DataCell(ft.Text(e.get("end", ""), color=text_on_light)),
+                        ft.DataCell(ft.Text(e.get("name", ""), color=text_on_light)),
+                        ft.DataCell(ft.Text(e.get("event_type", ""), color=text_on_light)),
                         ft.DataCell(
                             ft.Row(
                                 [
-                                    ft.IconButton(icon=ft.Icons.EDIT, tooltip="Editar",
-                                                  on_click=lambda ev, _e=e: open_event_dialog(_e)),
-                                    ft.IconButton(icon=ft.Icons.DELETE, tooltip="Eliminar",
-                                                  on_click=lambda ev, _id=e["id"]: delete_event(_id)),
+                                    ft.IconButton(
+                                        icon=ft.Icons.EDIT,
+                                        tooltip="Editar",
+                                        icon_color=sec_color,
+                                        on_click=lambda ev, _e=e: open_event_dialog(_e)
+                                    ),
+                                    ft.IconButton(
+                                        icon=ft.Icons.DELETE,
+                                        tooltip="Eliminar",
+                                        icon_color=ft.Colors.RED_400,
+                                        on_click=lambda ev, _id=e["id"]: delete_event(_id)
+                                    ),
                                 ],
                                 spacing=0,
                             )
@@ -153,4 +325,21 @@ class EventsView:
                 )
             )
 
-        self.view.controls.append(table)
+        # Tabla dentro de contenedor “pro” (solo diseño)
+        self.view.controls.append(
+            ft.Container(
+                padding=12,
+                border_radius=18,
+                bgcolor=ft.Colors.WHITE,
+                border=ft.border.all(1, ft.Colors.GREY_200),
+                shadow=[
+                    ft.BoxShadow(
+                        blur_radius=22,
+                        spread_radius=1,
+                        color=ft.Colors.BLACK12,
+                        offset=ft.Offset(0, 10),
+                    )
+                ],
+                content=table,
+            )
+        )
