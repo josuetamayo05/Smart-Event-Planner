@@ -2,8 +2,15 @@
 
 # 🏥 HospitalPlannerFlet
 
+<<<<<<< HEAD
 <img src="HospitalPlannerFlet/assets/dashboard.png" alt="HospitalPlannerFlet Preview" width="600"/>
+=======
+<br/>
+>>>>>>> acc7e95 (Update README.md)
 
+<img src="./HospitalPlannerFlet/assets/Dashboard.png" alt="HospitalPlannerFlet Dashboard" width="700"/>
+
+<br/>
 <br/>
 
 ### Planificador Inteligente de Eventos Hospitalarios
@@ -28,8 +35,8 @@
 ## 📋 Tabla de Contenidos
 
 - [Sobre el Proyecto](#-sobre-el-proyecto)
-- [Características](#-características)
 - [Capturas de Pantalla](#-capturas-de-pantalla)
+- [Características](#-características)
 - [Requisitos](#-requisitos)
 - [Instalación](#-instalación)
 - [Uso](#-uso)
@@ -52,6 +59,72 @@
 | Horarios superpuestos | ✅ Detección en tiempo real |
 | Gestión desorganizada | ✅ Calendario visual con slots clickeables |
 | Búsqueda lenta de eventos | ✅ Sistema de búsqueda global por tokens |
+
+---
+
+## 🖼️ Capturas de Pantalla
+
+### 🔐 Login - Inicio de Sesión
+*Pantalla de autenticación para acceder al sistema*
+
+<div align="center">
+<img src="./HospitalPlannerFlet/assets/Login.png" alt="Login" width="700"/>
+</div>
+
+<br/>
+
+---
+
+### 📋 Eventos - Gestión de Eventos
+*Listado completo de eventos ordenados por fecha y hora*
+
+<div align="center">
+<img src="./HospitalPlannerFlet/assets/Events.png" alt="Events" width="700"/>
+</div>
+
+<br/>
+
+---
+
+### ➕ Nuevo Evento - Crear Eventos
+*Formulario para crear nuevos eventos con validación de conflictos*
+
+<div align="center">
+<img src="./HospitalPlannerFlet/assets/NewEvent.png" alt="New Event" width="700"/>
+</div>
+
+<br/>
+
+---
+
+### 🗓️ Calendario - Agendar Citas
+*Vista de calendario diario con slots clickeables para agendar citas*
+
+<div align="center">
+<img src="./HospitalPlannerFlet/assets/Calendar.png" alt="Calendar" width="700"/>
+</div>
+
+<br/>
+
+---
+
+### 🔧 Recursos - Gestión de Recursos
+*Administración de recursos físicos y humanos del hospital*
+
+<div align="center">
+<img src="./HospitalPlannerFlet/assets/Resources.png" alt="Resources" width="700"/>
+</div>
+
+<br/>
+
+---
+
+### 🔍 Búsqueda - Filtrar Eventos y Recursos
+*Sistema de búsqueda global con filtros por categoría*
+
+<div align="center">
+<img src="./HospitalPlannerFlet/assets/Search.png" alt="Search" width="700"/>
+</div>
 
 ---
 
@@ -99,55 +172,6 @@
 </td>
 </tr>
 </table>
-
----
-
-## 🖼️ Capturas de Pantalla
-
-<details>
-<summary><b>🔐 Login & 🔍 Búsqueda</b></summary>
-<br/>
-<table>
-  <tr>
-    <td align="center"><b>🔐 Login</b></td>
-    <td align="center"><b>🔍 Búsqueda</b></td>
-  </tr>
-  <tr>
-    <td><img src="HospitalPlannerFlet/assets/Login.png" alt="Login" width="420"/></td>
-    <td><img src="HospitalPlannerFlet/assets/Search.png" alt="Search" width="420"/></td>
-  </tr>
-</table>
-</details>
-
-<details>
-<summary><b>🔧 Recursos & 📋 Eventos</b></summary>
-<br/>
-<table>
-  <tr>
-    <td align="center"><b>🔧 Recursos</b></td>
-    <td align="center"><b>📋 Eventos</b></td>
-  </tr>
-  <tr>
-    <td><img src="HospitalPlannerFlet/assets/Resources.png" alt="Resources" width="420"/></td>
-    <td><img src="HospitalPlannerFlet/assets/Events.png" alt="Events" width="420"/></td>
-  </tr>
-</table>
-</details>
-
-<details open>
-<summary><b>➕ Nuevo Evento & 🗓️ Calendario</b></summary>
-<br/>
-<table>
-  <tr>
-    <td align="center"><b>➕ Nuevo Evento</b></td>
-    <td align="center"><b>🗓️ Calendario</b></td>
-  </tr>
-  <tr>
-    <td><img src="HospitalPlannerFlet/assets/NewEvent.png" alt="NewEvent" width="420"/></td>
-    <td><img src="HospitalPlannerFlet/assets/Calendar.png" alt="Calendar" width="420"/></td>
-  </tr>
-</table>
-</details>
 
 ---
 
@@ -223,12 +247,13 @@ venv\Scripts\python.exe app.py
 HospitalPlannerFlet/
 │
 ├── 📁 assets/              # Imágenes y recursos estáticos
-│   ├── Login.png
-│   ├── Search.png
-│   ├── Resources.png
-│   ├── Events.png
-│   ├── NewEvent.png
-│   └── Calendar.png
+│   ├── Dashboard.png       # Vista principal
+│   ├── Login.png           # Pantalla de login
+│   ├── Events.png          # Gestión de eventos
+│   ├── NewEvent.png        # Crear nuevo evento
+│   ├── Calendar.png        # Calendario
+│   ├── Resources.png       # Gestión de recursos
+│   └── Search.png          # Búsqueda
 │
 ├── 📁 venv/                # Entorno virtual de Python
 │
@@ -308,16 +333,6 @@ Campos disponibles:
 ## 📄 Licencia
 
 Este proyecto está bajo la Licencia **MIT**. Consulta el archivo [LICENSE](LICENSE) para más detalles.
-
-```
-MIT License
-
-Copyright (c) 2025 HospitalPlannerFlet
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction...
-```
 
 ---
 
