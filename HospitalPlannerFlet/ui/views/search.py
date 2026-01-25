@@ -10,11 +10,16 @@ class SearchView:
 
         self.go_to=go_to
 
+        # Estilo consistente con el resto de pestañas (solo diseño)
         self.query_tf = ft.TextField(
             label="Buscar",
             hint_text="Ej: quirofano, trasplante, DR_AN1, tomografo, 2026-01-20",
             border_color=prime_color,
             color="black",
+            bgcolor=ft.Colors.WHITE,
+            filled=True,
+            border_radius=14,
+            prefix_icon=ft.Icons.SEARCH,
         )
 
         self.scope_rg = ft.RadioGroup(
@@ -35,34 +40,136 @@ class SearchView:
 
         self.results=ft.ListView(expand=True,spacing=8,padding=0)
 
+        # --- Helpers de diseño (solo UI) ---
+        def card(content, padding=16, radius=18, bgcolor=ft.Colors.WHITE):
+            return ft.Container(
+                padding=padding,
+                border_radius=radius,
+                bgcolor=bgcolor,
+                border=ft.border.all(1, ft.Colors.GREY_200),
+                shadow=[
+                    ft.BoxShadow(
+                        blur_radius=22,
+                        spread_radius=1,
+                        color=ft.Colors.BLACK12,
+                        offset=ft.Offset(0, 10),
+                    )
+                ],
+                content=content,
+            )
+
         #construir layout
         self.view.controls=[
-            ft.Text("Buscar", size=26, weight=ft.FontWeight.BOLD, color=prime_color),
+            # Header moderno (igual estilo que otras pestañas)
             ft.Container(
-                padding=14,
-                border_radius=14,
-                bgcolor=white_color,
-                content=ft.Column(
+                padding=18,
+                border_radius=22,
+                gradient=ft.LinearGradient(
+                    begin=ft.Alignment(-1, -1),
+                    end=ft.Alignment(1, 1),
+                    colors=[prime_color, sec_color],
+                ),
+                shadow=[
+                    ft.BoxShadow(
+                        blur_radius=22,
+                        spread_radius=1,
+                        color=ft.Colors.BLACK12,
+                        offset=ft.Offset(0, 10),
+                    )
+                ],
+                content=ft.Row(
+                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                    controls=[
+                        ft.Row(
+                            spacing=12,
+                            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                            controls=[
+                                ft.Container(
+                                    width=44,
+                                    height=44,
+                                    border_radius=16,
+                                    bgcolor=ft.Colors.WHITE,
+                                    alignment=ft.Alignment(0, 0),
+                                    content=ft.Icon(ft.Icons.MANAGE_SEARCH_OUTLINED, color=prime_color, size=24),
+                                ),
+                                ft.Column(
+                                    spacing=2,
+                                    controls=[
+                                        ft.Text("Buscar", size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.WHITE),
+                                        ft.Text(
+                                            "Encuentra eventos y recursos rápidamente",
+                                            size=13,
+                                            color=ft.Colors.with_opacity(0.92, ft.Colors.WHITE),
+                                        ),
+                                    ],
+                                ),
+                            ],
+                        ),
+                        ft.Container(
+                            padding=10,
+                            border_radius=16,
+                            bgcolor=ft.Colors.with_opacity(0.18, ft.Colors.WHITE),
+                            border=ft.border.all(1, ft.Colors.with_opacity(0.22, ft.Colors.WHITE)),
+                            content=ft.Icon(ft.Icons.SEARCH, color=ft.Colors.WHITE, size=22),
+                        ),
+                    ],
+                ),
+            ),
+
+            # Panel de búsqueda (card pro)
+            card(
+                ft.Column(
                     [
                         ft.Row(
                             [
                                 ft.Container(self.query_tf, expand=True),
                                 ft.Container(width=12),
-                                ft.Container(self.scope_rg),
+                                ft.Container(
+                                    padding=ft.padding.symmetric(horizontal=12, vertical=8),
+                                    border_radius=16,
+                                    bgcolor=ft.Colors.with_opacity(0.55, white_color),
+                                    border=ft.border.all(1, ft.Colors.GREY_200),
+                                    content=self.scope_rg,
+                                ),
                             ],
                             alignment=ft.MainAxisAlignment.START,
+                            vertical_alignment=ft.CrossAxisAlignment.START,
                         ),
-                        ft.Text("Resultados:", size=14, weight=ft.FontWeight.W_600),
+                        ft.Row(
+                            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                            controls=[
+                                ft.Text("Resultados:", size=14, weight=ft.FontWeight.W_700, color=text_on_light),
+                                ft.Container(
+                                    padding=ft.padding.symmetric(horizontal=10, vertical=6),
+                                    border_radius=999,
+                                    bgcolor=ft.Colors.with_opacity(0.12, dark_color),
+                                    border=ft.border.all(1, ft.Colors.with_opacity(0.18, dark_color)),
+                                    content=ft.Row(
+                                        spacing=8,
+                                        tight=True,
+                                        controls=[
+                                            ft.Icon(ft.Icons.FILTER_ALT_OUTLINED, size=18, color=dark_color),
+                                            ft.Text("Filtro", size=12, weight=ft.FontWeight.BOLD, color=text_on_light),
+                                        ],
+                                    ),
+                                ),
+                            ],
+                        ),
                         ft.Container(
-                            height=420,
-                            border_radius=12,
-                            bgcolor=light_color,
-                            padding=10,
+                            height=520,
+                            border_radius=16,
+                            bgcolor=ft.Colors.with_opacity(0.35, white_color),
+                            border=ft.border.all(1, ft.Colors.GREY_200),
+                            padding=12,
                             content=self.results,
                         ),
                     ],
-                    spacing=10,
+                    spacing=12,
                 ),
+                padding=16,
+                radius=18,
             ),
         ]
 
@@ -133,24 +240,61 @@ class SearchView:
             )
             self._open_dialog(dlg)
 
+        # Tarjeta estilo “pro” (solo diseño)
         return ft.Container(
-            padding=12,
-            border_radius=12,
-            bgcolor=white_color,
-            border=ft.border.all(1, ft.Colors.with_opacity(0.08, ft.Colors.BLACK)),
+            padding=14,
+            border_radius=18,
+            bgcolor=ft.Colors.WHITE,
+            border=ft.border.all(1, ft.Colors.GREY_200),
+            shadow=[
+                ft.BoxShadow(
+                    blur_radius=18,
+                    spread_radius=1,
+                    color=ft.Colors.BLACK12,
+                    offset=ft.Offset(0, 8),
+                )
+            ],
             content=ft.Column(
                 [
-                    ft.Text(title, size=12, weight=ft.FontWeight.W_600, color=prime_color),
-                    ft.Text(subtitle, size=11, color=ft.Colors.GREY_700),
+                    ft.Row(
+                        spacing=10,
+                        vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                        controls=[
+                            ft.Container(
+                                width=34,
+                                height=34,
+                                border_radius=14,
+                                bgcolor=ft.Colors.with_opacity(0.14, prime_color),
+                                border=ft.border.all(1, ft.Colors.with_opacity(0.18, prime_color)),
+                                alignment=ft.Alignment(0, 0),
+                                content=ft.Icon(ft.Icons.EVENT_AVAILABLE_OUTLINED, color=prime_color, size=18),
+                            ),
+                            ft.Column(
+                                spacing=2,
+                                controls=[
+                                    ft.Text(title, size=12, weight=ft.FontWeight.W_700, color=text_on_light),
+                                    ft.Text(subtitle, size=11, color=ft.Colors.GREY_700),
+                                ],
+                            ),
+                        ],
+                    ),
                     ft.Row(
                         [
-                            ft.TextButton("Ver", on_click=show_details),
-                            ft.TextButton("Ir a Eventos", on_click=go_events),
+                            ft.TextButton(
+                                "Ver",
+                                on_click=show_details,
+                                style=ft.ButtonStyle(color=prime_color),
+                            ),
+                            ft.TextButton(
+                                "Ir a Eventos",
+                                on_click=go_events,
+                                style=ft.ButtonStyle(color=sec_color),
+                            ),
                         ],
                         spacing=10,
                     ),
                 ],
-                spacing=6,
+                spacing=10,
             ),
         )
     
@@ -236,25 +380,62 @@ class SearchView:
             )
             self._open_dialog(dlg)
 
+        # Tarjeta estilo “pro” (solo diseño)
         return ft.Container(
-            padding=12,
-            border_radius=12,
-            bgcolor=light_color,
-            border=ft.border.all(1, ft.Colors.with_opacity(0.08, ft.Colors.BLACK)),
+            padding=14,
+            border_radius=18,
+            bgcolor=ft.Colors.WHITE,
+            border=ft.border.all(1, ft.Colors.GREY_200),
+            shadow=[
+                ft.BoxShadow(
+                    blur_radius=18,
+                    spread_radius=1,
+                    color=ft.Colors.BLACK12,
+                    offset=ft.Offset(0, 8),
+                )
+            ],
             content=ft.Column(
                 [
-                    ft.Text(line1, size=12, weight=ft.FontWeight.W_600, color=prime_color),
-                    ft.Text(line2, size=11, color=ft.Colors.GREY_700),
-                    ft.Text(line3, size=11, color=ft.Colors.GREY_700),
+                    ft.Row(
+                        spacing=10,
+                        vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                        controls=[
+                            ft.Container(
+                                width=34,
+                                height=34,
+                                border_radius=14,
+                                bgcolor=ft.Colors.with_opacity(0.14, dark_color),
+                                border=ft.border.all(1, ft.Colors.with_opacity(0.18, dark_color)),
+                                alignment=ft.Alignment(0, 0),
+                                content=ft.Icon(ft.Icons.INVENTORY_2_OUTLINED, color=dark_color, size=18),
+                            ),
+                            ft.Column(
+                                spacing=2,
+                                controls=[
+                                    ft.Text(line1, size=12, weight=ft.FontWeight.W_700, color=text_on_light),
+                                    ft.Text(line2, size=11, color=ft.Colors.GREY_700),
+                                    ft.Text(line3, size=11, color=ft.Colors.GREY_700),
+                                ],
+                            ),
+                        ],
+                    ),
                     ft.Row(
                         [
-                            ft.TextButton("Ver", on_click=show_details),
-                            ft.TextButton("Ir a Recursos", on_click=go_resources),
+                            ft.TextButton(
+                                "Ver",
+                                on_click=show_details,
+                                style=ft.ButtonStyle(color=prime_color),
+                            ),
+                            ft.TextButton(
+                                "Ir a Recursos",
+                                on_click=go_resources,
+                                style=ft.ButtonStyle(color=sec_color),
+                            ),
                         ],
                         spacing=10,
                     ),
                 ],
-                spacing=6,
+                spacing=10,
             ),
         )
     

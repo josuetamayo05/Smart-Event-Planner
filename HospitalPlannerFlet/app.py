@@ -21,8 +21,10 @@ def main(page: ft.Page):
     def show_login():
         page.controls.clear()
         page.bgcolor = light_color
-        page.window.width = 900
-        page.window.height = 620
+        page.window.max_height
+        page.window.max_width
+        # page.window.width = 900
+        # page.window.height = 620
         page.padding = 0
 
         login_view = LoginView(page, auth, on_success=start_app)
@@ -34,8 +36,10 @@ def main(page: ft.Page):
         page.overlay.clear()
 
         page.title = "Planificador hospitalario"
-        page.window.width = 1200
-        page.window.height = 620
+        page.window.max_height
+        page.window.max_width
+        # page.window.width = 1200
+        # page.window.height = 620
         page.padding = 0
 
         db = DatabaseManager("database.json")
