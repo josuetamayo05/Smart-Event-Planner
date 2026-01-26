@@ -4,7 +4,7 @@
 
 <br/>
 
-<img src="./HospitalPlannerFlet/assets/dashboard.png" alt="HospitalPlannerFlet Dashboard" width="700"/>
+<img src="./HospitalPlannerFlet/assets/Dashboard.png" alt="HospitalPlannerFlet Dashboard" width="700"/>
 
 <br/>
 <br/>
@@ -64,7 +64,7 @@
 *Pantalla de autenticación para acceder al sistema*
 
 <div align="center">
-<img src="./HospitalPlannerFlet/assets/login.png" alt="Login" width="700"/>
+<img src="./HospitalPlannerFlet/assets/Login.png" alt="Login" width="700"/>
 </div>
 
 <br/>
@@ -119,7 +119,7 @@
 *Sistema de búsqueda global con filtros por categoría*
 
 <div align="center">
-<img src="./HospitalPlannerFlet/assets/search.png" alt="Search" width="700"/>
+<img src="./HospitalPlannerFlet/assets/Search.png" alt="Search" width="700"/>
 </div>
 
 ---
