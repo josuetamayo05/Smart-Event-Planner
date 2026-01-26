@@ -2,11 +2,7 @@
 
 # 🏥 HospitalPlannerFlet
 
-<<<<<<< HEAD
-<img src="HospitalPlannerFlet/assets/dashboard.png" alt="HospitalPlannerFlet Preview" width="600"/>
-=======
 <br/>
->>>>>>> acc7e95 (Update README.md)
 
 <img src="./HospitalPlannerFlet/assets/Dashboard.png" alt="HospitalPlannerFlet Dashboard" width="700"/>
 
@@ -246,21 +242,53 @@ venv\Scripts\python.exe app.py
 ```
 HospitalPlannerFlet/
 │
-├── 📁 assets/              # Imágenes y recursos estáticos
-│   ├── Dashboard.png       # Vista principal
-│   ├── Login.png           # Pantalla de login
-│   ├── Events.png          # Gestión de eventos
-│   ├── NewEvent.png        # Crear nuevo evento
-│   ├── Calendar.png        # Calendario
-│   ├── Resources.png       # Gestión de recursos
-│   └── Search.png          # Búsqueda
+├── 📁 assets/                    # Imágenes y recursos estáticos
+│   ├── bg.jpg                    # Imagen de fondo
+│   ├── Dashboard.png             # Captura: Vista principal
+│   ├── Login.png                 # Captura: Pantalla de login
+│   ├── Events.png                # Captura: Gestión de eventos
+│   ├── NewEvent.png              # Captura: Crear nuevo evento
+│   ├── Calendar.png              # Captura: Calendario
+│   ├── Resources.png             # Captura: Gestión de recursos
+│   └── Search.png                # Captura: Búsqueda
 │
-├── 📁 venv/                # Entorno virtual de Python
+├── 📁 models/                    # Capa de datos y lógica de negocio
+│   ├── __init__.py
+│   ├── constraint.py             # Restricciones y validaciones
+│   ├── database_manager.py       # Gestión de base de datos JSON
+│   ├── event.py                  # Modelo de eventos
+│   ├── resource.py               # Modelo de recursos
+│   └── scheduler.py              # Planificador y detección de conflictos
 │
-├── 📄 app.py               # Punto de entrada de la aplicación
-├── 📄 users.json           # Archivo de usuarios para autenticación
-├── 📄 requirements.txt     # Dependencias del proyecto
-└── 📄 README.md            # Documentación
+├── 📁 ui/                        # Interfaz de usuario (Flet)
+│   ├── __init__.py
+│   ├── design.py                 # Estilos y tema visual
+│   ├── dialogs.py                # Diálogos y modales
+│   ├── state.py                  # Estado global de la aplicación
+│   ├── time_utils.py             # Utilidades de fecha/hora
+│   │
+│   ├── 📁 catalogs/              # Catálogos de tipos
+│   │   ├── event_types.py        # Tipos de eventos disponibles
+│   │   └── resource_types.py     # Tipos de recursos disponibles
+│   │
+│   └── 📁 views/                 # Vistas/Pantallas de la app
+│       ├── calendar_day.py       # Vista de calendario diario
+│       ├── dashboard.py          # Panel principal
+│       ├── events.py             # Listado de eventos
+│       ├── login.py              # Pantalla de autenticación
+│       ├── new_event.py          # Formulario nuevo evento
+│       ├── resources.py          # Gestión de recursos
+│       └── search.py             # Búsqueda global
+│
+├── 📁 utils/                     # Utilidades generales
+│   └── auth_manager.py           # Gestión de autenticación
+│
+├── 📁 venv/                      # Entorno virtual de Python
+│
+├── 📄 app.py                     # Punto de entrada principal
+├── 📄 database.json              # Base de datos local (JSON)
+├── 📄 users.json                 # Usuarios para autenticación
+└── 📄 version.py                 # Información de versión
 ```
 
 ---
