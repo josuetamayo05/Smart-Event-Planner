@@ -9,6 +9,29 @@ class AuthManager:
         self._load()
         self._ensure_default_admin()
 
+    def add_user(self,username:str, password:str, role:str="staff"):
+        username=(username or "").strip()
+        if not username:
+            raise ValueError("username vacío")
+        if any(u.get("username","").strip().lower() == username.lower() for u in self.data["users"]):
+            raise ValueError("Ya existe ese username")
+        self.data["users"].append({
+            "username": username,
+            "password_hash": self._hash_pbkdf2(password),
+            "role": role
+        })
+        self._save()
+
+    def set_password(self,username:str,new_password:str):
+        username=(username or "").strip().lower()
+        for u in self.data["users"]:
+            if u.get("username","").strip().lower()==username:
+                new_password=self._hash_pbkdf2(new_password)
+                u["password_hash"]=new_password
+                self._save()
+                return True
+        return False
+
     def _load(self):
         if os.path.exists(self.path):
             with open(self.path, "r", encoding="utf-8") as f:
@@ -100,6 +123,7 @@ class AuthManager:
                 if hmac.compare_digest(self._hash_legacy_sha256(password), ph):
                     u["password_hash"] = self._hash_pbkdf2(password)  # migración
                     changed = True
+                    self._save()
                     return {"username": u["username"], "role": u.get("role", "staff")}
                 return None
 

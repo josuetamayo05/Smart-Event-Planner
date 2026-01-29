@@ -2,8 +2,13 @@
   "users": [
     {
       "username": "josue",
-      "password_hash": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+      "password_hash": "pbkdf2$180000$+7rJW3evfYvsvXx8abXR/Q==$U2ypeHROuZRraCtvch35SCjNtMFg2eDTUy7Qo/auhbE=",
       "role": "admin"
+    },
+    {
+      "username": "javier",
+      "password_hash": "pbkdf2$180000$weBPEhnqZhy8WlKDqkUziA==$LS6v8EgMUBHtXKhjrZTL+mr50bhzp7fT4niV1EdYN4E=",
+      "role": "staff"
     }
   ]
 }
