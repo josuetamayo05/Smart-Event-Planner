@@ -5,7 +5,7 @@ from ui.design import prime_color, dark_color, white_color, light_color
 class DashboardView:
     def __init__(self, db):
         self.db = db
-        self.view = ft.Column(spacing=14, scroll=ft.ScrollMode.AUTO)
+        self.view = ft.Column(expand=True,spacing=14, scroll=ft.ScrollMode.AUTO)
 
     def _stat_card(self, title: str, value: int):
         # Tarjeta estadística (solo diseño)

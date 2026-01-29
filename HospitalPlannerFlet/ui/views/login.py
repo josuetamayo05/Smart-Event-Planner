@@ -123,9 +123,10 @@ class LoginView:
 
                 # Limpia password por seguridad antes de continuar (opcional pero recomendado)
                 self.passfield.value = ""
+                # Revisar mala optimizacion entre page.update y on_succes, on succces podria ir 1ro
+                self.on_success(user)
                 self.page.update()
 
-                self.on_success(user)
             else:
                 self.failed_attempts += 1
 

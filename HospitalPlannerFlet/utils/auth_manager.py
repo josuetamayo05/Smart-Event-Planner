@@ -21,10 +21,8 @@ class AuthManager:
         with open(self.path, "w", encoding="utf-8") as f:
             json.dump(self.data, f, ensure_ascii=False, indent=2)
 
-    # -----------------------------
     # Hashing seguro (PBKDF2)
     # Formato: pbkdf2$<iters>$<salt_b64>$<hash_b64>
-    # -----------------------------
     def _hash_pbkdf2(self, password: str, iterations: int = 180_000) -> str:
         salt = secrets.token_bytes(16)
         dk = hashlib.pbkdf2_hmac(
@@ -57,9 +55,7 @@ class AuthManager:
         except Exception:
             return False
 
-    # -----------------------------
     # Legacy (tu SHA256 actual)
-    # -----------------------------
     def _hash_legacy_sha256(self, password: str) -> str:
         return hashlib.sha256((password or "").encode("utf-8")).hexdigest()
 

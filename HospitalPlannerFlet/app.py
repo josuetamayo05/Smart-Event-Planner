@@ -21,10 +21,9 @@ def main(page: ft.Page):
     def show_login():
         page.controls.clear()
         page.bgcolor = light_color
-        page.window.max_height
-        page.window.max_width
-        # page.window.width = 900
-        # page.window.height = 620
+
+        page.window.width = 900
+        page.window.height = 620
         page.padding = 0
 
         login_view = LoginView(page, auth, on_success=start_app)
@@ -34,13 +33,15 @@ def main(page: ft.Page):
     def start_app(user):
         page.controls.clear()
         page.overlay.clear()
+        page.padding = 0
 
         page.title = "Planificador hospitalario"
-        page.window.max_height
-        page.window.max_width
+        page.window.width=1200
+        page.window.height=760
+        page.window.maximized=True
+        page.window.center()
         # page.window.width = 1200
         # page.window.height = 620
-        page.padding = 0
 
         db = DatabaseManager("database.json")
         scheduler = Scheduler(db)
@@ -90,28 +91,28 @@ def main(page: ft.Page):
         nav_refs = {}  # idx -> (container, icon_ctrl, text_ctrl)
         hovered_idx = {"idx": None}
 
-        def apply_nav_style(idx: int):
-            item, ic, tx = nav_refs[idx]
-            selected = (state.selected_index == idx)
-            hovered = (hovered_idx["idx"] == idx)
+        # def apply_nav_style(idx: int):
+        #     item, ic, tx = nav_refs[idx]
+        #     selected = (state.selected_index == idx)
+        #     hovered = (hovered_idx["idx"] == idx)
 
-            if selected:
-                item.bgcolor = dark_color
-                ic.color = "white"
-                tx.color = "white"
-            elif hovered:
-                item.bgcolor = HOVER_BG
-                ic.color = prime_color
-                tx.color = prime_color
-            else:
-                item.bgcolor = ft.Colors.TRANSPARENT
-                ic.color = prime_color
-                tx.color = prime_color
+        #     if selected:
+        #         item.bgcolor = dark_color
+        #         ic.color = "white"
+        #         tx.color = "white"
+        #     elif hovered:
+        #         item.bgcolor = HOVER_BG
+        #         ic.color = prime_color
+        #         tx.color = prime_color
+        #     else:
+        #         item.bgcolor = ft.Colors.TRANSPARENT
+        #         ic.color = prime_color
+        #         tx.color = prime_color
 
-        def refresh_nav():
-            for idx in nav_refs:
-                apply_nav_style(idx)
-            page.update()
+        # def refresh_nav():
+        #     for idx in nav_refs:
+        #         apply_nav_style(idx)
+        #     page.update()
 
         def nav_item(label: str, icon_data, idx: int):
             ic = ft.Icon(icon_data, color=prime_color, size=18)
@@ -125,7 +126,7 @@ def main(page: ft.Page):
 
             def on_hover(e):
                 hovered_idx["idx"] = idx if e.data == "true" else None
-                refresh_nav()
+                # refresh_nav()
 
             def on_click(e):
                 show_screen(idx)
@@ -135,7 +136,7 @@ def main(page: ft.Page):
             item.on_click = on_click
 
             nav_refs[idx] = (item, ic, tx)
-            apply_nav_style(idx)
+            # apply_nav_style(idx)
             return item
         
         left_container.content = ft.Column(
@@ -155,6 +156,7 @@ def main(page: ft.Page):
                 ft.Text("v1.0", size=10, color=prime_color),
             ],
             spacing=10,
+            expand=True,
         )
 
         search_view=None
@@ -185,7 +187,8 @@ def main(page: ft.Page):
 
             # refrescar sidebar (para resaltar item seleccionado)
             page.update()
-            refresh_nav()
+            
+            # refresh_nav() # revisar indexacion
         
         search_view=SearchView(page,db,go_to=show_screen)
 
@@ -195,7 +198,7 @@ def main(page: ft.Page):
             ft.Container(
                 bgcolor=sec_color,
                 expand=True,
-                content=ft.Column([header, ft.Divider(height=1), main_row], spacing=0),
+                content=ft.Column([header, ft.Divider(height=1), main_row], spacing=0,expand=True),
             )
         )
 
