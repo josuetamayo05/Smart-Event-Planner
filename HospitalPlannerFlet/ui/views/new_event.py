@@ -21,7 +21,7 @@ class NewEventView:
         flat_options=[]
         for cat,items in EVENT_TYPES.items():
             for it in items:
-                flat_options.append(ft.dropdown.Option(it["code"],it["label"]))
+                flat_options.append(ft.dropdown.Option(key=str(it["code"]),text=str(it["label"])))
 
         # Estilo base para inputs (solo diseño)
         base_tf_kwargs = dict(
@@ -37,17 +37,16 @@ class NewEventView:
         self.date_tf = ft.TextField(label="Fecha (YYYY-MM-DD)", value=str(date.today()), **base_tf_kwargs)
         self.start_tf = ft.TextField(label="Hora inicio (HH:MM)", value="09:00", **base_tf_kwargs)
         self.end_tf = ft.TextField(label="Hora fin (HH:MM)", value="11:00", **base_tf_kwargs)
-
         self.duration_tf = ft.TextField(label="Duración (minutos)", value="120", **base_tf_kwargs)
         self.slots_column = ft.Column(spacing=6)
         self.validation_text = ft.Text("")
         self.resources_column = ft.Column(spacing=2)
 
         self.name_tf.on_change = lambda e: self.quick_validate()
+        self.type_tf.on_text_change=lambda e: self.quick_validate()
         self.date_tf.on_change = lambda e: self.quick_validate()
         self.start_tf.on_change = lambda e: self.quick_validate()
         self.end_tf.on_change = lambda e: self.quick_validate()
-        self.type_tf.on_change = lambda e: self.quick_validate()  
         self.duration_tf.on_change = lambda e: self.quick_validate()  
 
         self.type_tf.border_color=prime_color
@@ -439,9 +438,9 @@ class NewEventView:
             self.page.update()
             return
         
-        etype=(self.type_tf.value or "").strip()
+        etype=str(self.type_tf.value or "").strip()
         if not etype:
-            self.validation_text.value="Selecciona un tipo de evento."
+            self.validation_text.value="Selecciona un tipo y nombre de evento."
             self.validation_text.color=ft.Colors.RED
             self.page.update()
             return

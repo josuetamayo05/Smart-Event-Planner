@@ -464,6 +464,42 @@
         "ENF1",
         "DR_CIR1"
       ]
+    },
+    {
+      "id": "e4288185-8263-4045-896b-ca3863db8787",
+      "name": "fasfsafdsa",
+      "description": "",
+      "event_type": "trasplante",
+      "start": "2026-01-28T09:00",
+      "end": "2026-01-28T11:00",
+      "resource_ids": [
+        "RT1"
+      ],
+      "resource_units": {
+        "RT1": 1
+      }
+    },
+    {
+      "id": "de1188c4-de50-4408-9f14-cc7761f7f5f6",
+      "name": "fafafas",
+      "description": "",
+      "event_type": "trasplante",
+      "start": "2026-01-28T09:15",
+      "end": "2026-01-28T11:15",
+      "resource_ids": [
+        "ILS"
+      ]
+    },
+    {
+      "id": "1fa6b311-e4c4-4edb-a265-316d6a9112dd",
+      "name": "21dsafasss",
+      "description": "",
+      "event_type": "tac",
+      "start": "2026-01-28T11:15",
+      "end": "2026-01-28T13:15",
+      "resource_ids": [
+        "ILS"
+      ]
     }
   ],
   "constraints": {

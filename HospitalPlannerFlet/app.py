@@ -192,7 +192,8 @@ def main(page: ft.Page):
         
         search_view=SearchView(page,db,go_to=show_screen)
 
-        main_row = ft.Row([left_container, ft.VerticalDivider(width=1), right_container], spacing=0, expand=True)
+        main_row = ft.Row([left_container, ft.VerticalDivider(width=1), right_container], spacing=0, expand=True, 
+                          vertical_alignment=ft.CrossAxisAlignment.STRETCH)
 
         page.add(
             ft.Container(
