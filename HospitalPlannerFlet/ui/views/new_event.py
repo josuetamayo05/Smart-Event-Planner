@@ -18,10 +18,14 @@ class NewEventView:
         self.state = state
         self.on_any_change = on_any_change
 
+        self.type_code_by_label={}
         flat_options=[]
         for cat,items in EVENT_TYPES.items():
             for it in items:
-                flat_options.append(ft.dropdown.Option(key=str(it["code"]),text=str(it["label"])))
+                code=str(it["code"])
+                label=str(it["label"])
+                self.type_code_by_label[label]=code
+                flat_options.append(ft.dropdown.Option(key=code,text=label))
 
         # Estilo base para inputs (solo diseño)
         base_tf_kwargs = dict(
@@ -43,7 +47,7 @@ class NewEventView:
         self.resources_column = ft.Column(spacing=2)
 
         self.name_tf.on_change = lambda e: self.quick_validate()
-        self.type_tf.on_text_change=lambda e: self.quick_validate()
+        self.type_tf.on_text_change=self.on_type_change
         self.date_tf.on_change = lambda e: self.quick_validate()
         self.start_tf.on_change = lambda e: self.quick_validate()
         self.end_tf.on_change = lambda e: self.quick_validate()
@@ -332,6 +336,19 @@ class NewEventView:
 
         self.view=form_panel
 
+    def on_type_change(self,e):
+        label=e.data 
+        code=self.type_code_by_label.get(label)
+
+        if code:
+            if self.type_tf.value!=code:
+                self.type_tf.value=code
+                self.type_tf.update()
+            self.quick_validate(etype=code)
+        else:
+            pass
+        print("e.data:", e.data, "e.control.value:", e.control.value, "self.type_tf.value:", self.type_tf.value)
+        
 
     def set_times(self, date_iso: str, start_hhmm: str, end_hhmm: str):
         self.date_tf.value = date_iso
@@ -421,7 +438,7 @@ class NewEventView:
         self.page.update()
         self.quick_validate()
 
-    def quick_validate(self):
+    def quick_validate(self, etype=None):
         self.validation_text.value = ""
         try:
             start_dt = parse_dt(self.date_tf.value, self.start_tf.value)
@@ -438,7 +455,7 @@ class NewEventView:
             self.page.update()
             return
         
-        etype=str(self.type_tf.value or "").strip()
+        etype=str(etype if etype is not None else (self.type_tf.value or "")).strip()
         if not etype:
             self.validation_text.value="Selecciona un tipo y nombre de evento."
             self.validation_text.color=ft.Colors.RED
@@ -462,6 +479,7 @@ class NewEventView:
         else:
             self.validation_text.value = "Sin conflictos detectados."
             self.validation_text.color = ft.Colors.GREEN
+        
 
         self.page.update()
 
