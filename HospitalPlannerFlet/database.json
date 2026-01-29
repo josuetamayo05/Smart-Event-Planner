@@ -394,14 +394,6 @@
       "quantity": 1
     },
     {
-      "id": "dafa",
-      "name": "dsad",
-      "kind": "human",
-      "subtype": null,
-      "role": "cirujano",
-      "tags": []
-    },
-    {
       "id": "Jos",
       "name": "JOOOs",
       "kind": "human",
@@ -436,6 +428,33 @@
       "tags": [
         "trasplante"
       ]
+    },
+    {
+      "id": "JAV",
+      "name": "Javier",
+      "kind": "human",
+      "subtype": null,
+      "role": "cirujano",
+      "tags": [],
+      "quantity": 1
+    },
+    {
+      "id": "CAMS",
+      "name": "Cama",
+      "kind": "physical",
+      "subtype": "pacu_bed",
+      "role": null,
+      "tags": [],
+      "quantity": 2
+    },
+    {
+      "id": "CAD",
+      "name": "Camilla",
+      "kind": "physical",
+      "subtype": "pacu_bed",
+      "role": null,
+      "tags": [],
+      "quantity": 2
     }
   ],
   "events": [
@@ -499,6 +518,29 @@
       "end": "2026-01-28T13:15",
       "resource_ids": [
         "ILS"
+      ]
+    },
+    {
+      "id": "9810a0bf-1681-42b9-abb1-f491cb820dba",
+      "name": "cirug",
+      "description": "",
+      "event_type": "cirugia_general",
+      "start": "2026-01-29T09:30",
+      "end": "2026-01-29T11:30",
+      "resource_ids": [
+        "DR_CARD1",
+        "ce"
+      ]
+    },
+    {
+      "id": "e0ec35d5-d5ee-4c9d-95b1-270bc9a05259",
+      "name": "ciruj",
+      "description": "",
+      "event_type": "cirugia_general",
+      "start": "2026-01-29T09:00",
+      "end": "2026-01-29T11:00",
+      "resource_ids": [
+        "dafa"
       ]
     }
   ],

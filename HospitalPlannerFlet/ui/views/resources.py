@@ -75,7 +75,6 @@ class ResourcesView:
             self.page.update()
 
         def open_resource_dialog(existing: dict | None = None):
-            # ----------- TU CÓDIGO ORIGINAL (NO TOCADO) -----------
             is_edit = existing is not None
             existing = existing or {}
 
@@ -116,6 +115,34 @@ class ResourcesView:
 
             selected_tags = set(existing.get("tags", [])) if is_edit else set()
             tags_preview = ft.Text("")
+
+            quantity_tf=ft.TextField(
+                label="Cantidad",
+                value=str(existing.get("quantity",1) if is_edit else 1),
+                keyboard_type=ft.KeyboardType.NUMBER,
+                width=160,
+            )
+
+            def get_qty()->int:
+                try:
+                    return int((quantity_tf.value or "1").strip())
+                except Exception:
+                    return 1
+            
+            def set_qty(v:int):
+                v=max(1,int(v))
+                quantity_tf.value=str(v)
+                quantity_tf.update()
+            
+            qty_row=ft.Row(
+                spacing=10,
+                controls=[
+                    ft.IconButton(ft.Icons.REMOVE, on_click=lambda e: set_qty(get_qty()-1)),
+                    quantity_tf,
+                    ft.IconButton(ft.Icons.ADD,on_click=lambda e: set_qty(get_qty()+1)),
+                ],
+            )
+            
 
             def refresh_tags_preview():
                 if not selected_tags:
@@ -176,6 +203,7 @@ class ResourcesView:
                     ),
                     actions=[],
                 )
+                
 
                 def on_save_tags(e):
                     extra = [t.strip() for t in (custom_tf.value or "").split(",") if t.strip()]
@@ -193,6 +221,10 @@ class ResourcesView:
                     ft.ElevatedButton("Guardar", on_click=on_save_tags),
                 ]
                 open_dialog(self.page, tags_dlg)
+
+                def on_save_pool(e):
+                    pass
+                    
 
             edit_tags_btn = ft.ElevatedButton("Editar tags", on_click=open_tags_editor)
 
@@ -271,14 +303,18 @@ class ResourcesView:
 
                 if is_human:
                     subtype_dd.value = None
+                    quantity_tf.value="1"
+                    quantity_tf.disabled=True
                 else:
                     role_dd.value = None
+                    quantity_tf.disabled=False
 
                 if update_ui:
                     subtype_dd.update()
                     role_dd.update()
                     subtype_row.update()
                     role_row.update()
+                    quantity_tf.update()
 
             def on_kind_change(e):
                 snack(self.page, f"Kind cambiado a: {kind_rg.value}")
@@ -296,6 +332,8 @@ class ResourcesView:
                         name_tf,
                         ft.Text("Kind"),
                         kind_rg,
+                        ft.Text("Cantidad"),
+                        qty_row,
                         subtype_row,
                         role_row,
                         ft.Row(
@@ -309,7 +347,7 @@ class ResourcesView:
                     ],
                     tight=True,
                     scroll=ft.ScrollMode.AUTO,
-                    height=460,
+                    height=520,
                 ),
                 actions=[],
             )
@@ -317,6 +355,12 @@ class ResourcesView:
             def on_save(_):
                 rid = (id_tf.value or "").strip()
                 rname = (name_tf.value or "").strip()
+                try:
+                    quantity=int((quantity_tf.value or "1").strip())
+                except Exception:
+                    snack(self.page, "Cantidad inválida. Usa un número entero.")
+                if quantity<1:
+                    snack(self.page, "Cantidad debe ser mayor que 0")
                 if not rid:
                     snack(self.page, "ID es obligatorio.")
                     return
@@ -337,6 +381,7 @@ class ResourcesView:
                     return
                 if kind_rg.value == "human" and not role_dd.value:
                     snack(self.page, "Selecciona un role para recursos humanos.")
+                    quantity=1
                     return
 
                 tags = sorted(set(selected_tags))
@@ -348,6 +393,7 @@ class ResourcesView:
                     "subtype": subtype_dd.value if kind_rg.value == "physical" else None,
                     "role": role_dd.value if kind_rg.value == "human" else None,
                     "tags": tags,
+                    "quantity": quantity
                 })
 
                 close_dialog(self.page, dlg)
