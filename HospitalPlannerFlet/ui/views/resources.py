@@ -13,7 +13,7 @@ class ResourcesView:
     def refresh(self):
         self.view.controls.clear()
 
-        # --- Helpers visuales (solo UI) ---
+        #  Helpers visuales 
         def card(content, padding=16, radius=18):
             return ft.Container(
                 padding=padding,
@@ -407,11 +407,8 @@ class ResourcesView:
             ]
 
             open_dialog(self.page, dlg)
-            # ----------- FIN TU CÓDIGO ORIGINAL -----------
 
-        # ---------------------------
         # Header moderno (gradiente)
-        # ---------------------------
         header = ft.Container(
             padding=18,
             border_radius=22,
@@ -457,9 +454,7 @@ class ResourcesView:
         )
         self.view.controls.append(header)
 
-        # ---------------------------
         # Barra de acciones (card)
-        # ---------------------------
         actions_bar = ft.Row(
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
@@ -480,9 +475,7 @@ class ResourcesView:
         )
         self.view.controls.append(card(actions_bar, padding=14, radius=18))
 
-        # ---------------------------
-        # Llenar tabla (sin tocar lógica)
-        # ---------------------------
+        # Llenar tabla 
         for r in resources:
             table.rows.append(
                 ft.DataRow(
@@ -516,7 +509,7 @@ class ResourcesView:
                 )
             )
 
-        # Tabla dentro de contenedor “pro”
+        # Tabla dentro de contenedor 
         table_container = ft.Container(
             padding=12,
             border_radius=18,

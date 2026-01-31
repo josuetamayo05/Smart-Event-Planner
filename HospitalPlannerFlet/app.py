@@ -64,7 +64,7 @@ def main(page: ft.Page):
 
         calendar = CalendarDayView(page, db, state, on_pick_slot=pick_slot_from_calendar)
 
-        # Right container (content area)
+        # Right container content area
         right_container = ft.Container(bgcolor=white_color,expand=9,padding=18,border_radius=14,)
 
         # Header top bar
@@ -131,7 +131,6 @@ def main(page: ft.Page):
             def on_click(e):
                 show_screen(idx)
 
-            # En tu versión de Flet, Container soporta on_hover normalmente.
             item.on_hover = on_hover
             item.on_click = on_click
 
@@ -185,9 +184,8 @@ def main(page: ft.Page):
                     search_view.refresh()
                     right_container.content=search_view.view
 
-            # refrescar sidebar (para resaltar item seleccionado)
             page.update()
-            
+            # refrescar sidebar (para resaltar item seleccionado)
             # refresh_nav() # revisar indexacion
         
         search_view=SearchView(page,db,go_to=show_screen)

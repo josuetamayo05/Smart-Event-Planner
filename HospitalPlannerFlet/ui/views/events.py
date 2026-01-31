@@ -18,7 +18,7 @@ class EventsView:
     def refresh(self):
         self.view.controls.clear()
 
-        # --- UI helpers (solo diseño) ---
+        # UI helpers 
         def card(content, padding=16, radius=18):
             return ft.Container(
                 padding=padding,
@@ -52,9 +52,7 @@ class EventsView:
                 ),
             )
 
-        # ---------------------------
         # Header moderno (gradiente)
-        # ---------------------------
         header = ft.Container(
             padding=18,
             border_radius=22,
@@ -102,7 +100,7 @@ class EventsView:
 
         events = sorted(self.db.list_events(), key=lambda x: x.get("start", ""))
 
-        # Empty state (solo diseño)
+        # Empty state 
         if not events:
             self.view.controls.append(
                 card(
@@ -130,7 +128,7 @@ class EventsView:
             )
             return
 
-        # Barra de info arriba (solo diseño)
+        # Barra de info arriba
         info_bar = ft.Row(
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
@@ -148,7 +146,6 @@ class EventsView:
             heading_row_height=46,
             data_row_min_height=46,
             data_row_max_height=56,
-            # Nota: en 0.80.2 algunas props visuales varían; evitamos las no esenciales
             columns=[
                 ft.DataColumn(ft.Text("Inicio", weight=ft.FontWeight.BOLD, color=text_on_light)),
                 ft.DataColumn(ft.Text("Fin", weight=ft.FontWeight.BOLD, color=text_on_light)),
@@ -325,7 +322,7 @@ class EventsView:
                 )
             )
 
-        # Tabla dentro de contenedor “pro” (solo diseño)
+        # Tabla dentro de contenedor 
         self.view.controls.append(
             ft.Container(
                 padding=12,

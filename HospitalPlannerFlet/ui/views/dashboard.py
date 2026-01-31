@@ -8,7 +8,7 @@ class DashboardView:
         self.view = ft.Column(expand=True,spacing=14, scroll=ft.ScrollMode.AUTO)
 
     def _stat_card(self, title: str, value: int):
-        # Tarjeta estadística (solo diseño)
+        # Tarjeta estadística 
         icon_map = {
             "Eventos": ft.Icons.EVENT_NOTE_OUTLINED,
             "Recursos": ft.Icons.INVENTORY_2_OUTLINED,

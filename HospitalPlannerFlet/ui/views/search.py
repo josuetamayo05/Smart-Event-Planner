@@ -10,7 +10,7 @@ class SearchView:
 
         self.go_to=go_to
 
-        # Estilo consistente con el resto de pestañas (solo diseño)
+        # Estilo consistente con el resto de pestañas 
         self.query_tf = ft.TextField(
             label="Buscar",
             hint_text="Ej: quirofano, trasplante, DR_AN1, tomografo, 2026-01-20",
@@ -40,7 +40,7 @@ class SearchView:
 
         self.results=ft.ListView(expand=True,spacing=8,padding=0)
 
-        # --- Helpers de diseño (solo UI) ---
+        #  Helpers de diseño 
         def card(content, padding=16, radius=18, bgcolor=ft.Colors.WHITE):
             return ft.Container(
                 padding=padding,
@@ -60,7 +60,7 @@ class SearchView:
 
         #construir layout
         self.view.controls=[
-            # Header moderno (igual estilo que otras pestañas)
+            # Header moderno
             ft.Container(
                 padding=18,
                 border_radius=22,
@@ -117,7 +117,7 @@ class SearchView:
                 ),
             ),
 
-            # Panel de búsqueda (card pro)
+            # Panel de búsqueda 
             card(
                 ft.Column(
                     [
@@ -240,7 +240,7 @@ class SearchView:
             )
             self._open_dialog(dlg)
 
-        # Tarjeta estilo “pro” (solo diseño)
+        # Tarjeta estilo 
         return ft.Container(
             padding=14,
             border_radius=18,
@@ -340,7 +340,7 @@ class SearchView:
                     ],
                 ),
                 content=ft.Container(
-                    width=420,  # ajusta si lo quieres más ancho/estrecho
+                    width=420,  # ajustar si lo quieres más ancho/estrecho
                     padding=18,
                     border_radius=22,
                     bgcolor=ft.Colors.with_opacity(0.10, light_color),
@@ -380,7 +380,7 @@ class SearchView:
             )
             self._open_dialog(dlg)
 
-        # Tarjeta estilo “pro” (solo diseño)
+        # Tarjeta estilo 
         return ft.Container(
             padding=14,
             border_radius=18,

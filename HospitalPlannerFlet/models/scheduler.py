@@ -54,7 +54,7 @@ class Scheduler:
     def _check_availability(self, event:Event)->List[Violation]:
         violations:List[Violation]=[]
 
-        # Por simplicidad: no permitimos eventos que crucen medianoche
+        #  no permitimos eventos que crucen medianoche
         if event.start.date()!=event.end.date():
             violations.append(
                 Violation(
@@ -154,7 +154,7 @@ class Scheduler:
         
         return violations
     
-    # ---------- co-requisitos ----------
+    #  co-requisitos 
 
     def _check_resource_capacity(self,ev:Event)->List[Violation]:
         violations:List[Violation]=[]

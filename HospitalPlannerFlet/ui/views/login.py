@@ -14,11 +14,11 @@ class LoginView:
         CARD_H = 540
         FIELD_W = 340
 
-        # --- Seguridad/UX: bloqueo por intentos fallidos (solo UI/flujo, no cambia tu auth) ---
+        #  Seguridad/UX: bloqueo por intentos fallidos 
         self.failed_attempts = 0
         self.locked_until: datetime | None = None
 
-        # --- Recordar usuario (solo usuario; nunca contraseña) ---
+        # Recordar usuario 
         saved_user = ""
         try:
             saved_user = self.page.client_storage.get("saved_user") or ""
@@ -66,7 +66,7 @@ class LoginView:
             value=True if saved_user else False
         )
 
-        # Loading (para evitar doble click y dar sensación pro)
+        # Loading para evitar doble click 
         self.loading_ring = ft.ProgressRing(width=18, height=18, stroke_width=2, visible=False)
 
         def set_loading(is_loading: bool):
@@ -143,7 +143,7 @@ class LoginView:
 
                 set_msg("Usuario o contraseña incorrectos.", ft.Colors.RED, 14)
 
-        # Header compacto (pero con estilo pro)
+        # Header compacto 
         header = ft.Container(
             padding=18,
             border_radius=22,
@@ -210,7 +210,7 @@ class LoginView:
             ),
         )
 
-        # Columna interior (más compacta)
+        # Columna interior 
         mainColumn = ft.Column(
             controls=[
                 header,
@@ -252,10 +252,10 @@ class LoginView:
             offset=ft.Offset(0, 8),
         )
 
-        # Contenedor raíz centrado (clave para centralizar)
+        # Contenedor raíz centrado 
         self.view = ft.Container(
             expand=True,
-            bgcolor=ft.Colors.with_opacity(0.12, sec_color),  # fondo ventana (suave)
+            bgcolor=ft.Colors.with_opacity(0.12, sec_color),  # fondo ventana 
             alignment=ft.Alignment(0, 0),
             content=card,
         )

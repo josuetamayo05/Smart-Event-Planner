@@ -12,7 +12,7 @@ class CalendarDayView:
         self.state = state
         self.on_pick_slot = on_pick_slot
 
-        # Contenedor principal del view (diseño)
+        # Contenedor principal del view 
         self.view = ft.Column(
             spacing=12,
             scroll=ft.ScrollMode.AUTO,
@@ -35,9 +35,7 @@ class CalendarDayView:
         self.date_picker.open = True
         self.page.update()
 
-    # ---------------------------
-    # UI helpers (solo visual)
-    # ---------------------------
+    # UI helpers 
     def _glass_card(self, content: ft.Control, *, padding=16, radius=18):
         return ft.Container(
             padding=padding,
@@ -74,9 +72,7 @@ class CalendarDayView:
     def refresh(self):
         self.view.controls.clear()
 
-        # ---------------------------
-        # Header superior (bonito)
-        # ---------------------------
+        # Header superior 
         header = ft.Container(
             padding=18,
             border_radius=22,
@@ -120,9 +116,7 @@ class CalendarDayView:
         )
         self.view.controls.append(header)
 
-        # ---------------------------
         # Barra de fecha + botón
-        # ---------------------------
         date_row = ft.Row(
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
@@ -142,9 +136,7 @@ class CalendarDayView:
         )
         self.view.controls.append(self._glass_card(date_row, padding=14, radius=18))
 
-        # ---------------------------
-        # Slots clickeables (misma lógica)
-        # ---------------------------
+        # Slots clickeables 
         DAY_START = 7
         DAY_END = 20
         SLOT_MIN = 15
@@ -164,7 +156,7 @@ class CalendarDayView:
         for m in range(DAY_START * 60, DAY_END * 60, SLOT_MIN):
             label = f"{m//60:02d}:00" if m % 60 == 0 else ""
 
-            # Visual: marca suavemente las horas en punto
+            #  marca suavemente las horas en punto
             is_full_hour = (m % 60 == 0)
             row_bg = ft.Colors.with_opacity(0.45, white_color) if is_full_hour else ft.Colors.with_opacity(0.20, white_color)
 

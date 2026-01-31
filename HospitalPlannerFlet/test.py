@@ -153,7 +153,7 @@ def main(page: ft.Page):
             top = int(start_min * PX_PER_MIN)
             height = max(35, int((end_min - start_min) * PX_PER_MIN))
 
-            # texto de recursos (opcional)
+            # texto de recursos 
             res_names = []
             all_res = {r["id"]: r.get("name", r["id"]) for r in db.list_resources()}
             for rid in ev.resource_ids:
@@ -201,7 +201,7 @@ def main(page: ft.Page):
             )
         )
 
-    # UI helpers ----------------
+    # UI helpers 
     def snack(msg:str):
         page.snack_bar = ft.SnackBar(ft.Text(msg))
         page.snack_bar.open = True
@@ -236,7 +236,7 @@ def main(page: ft.Page):
     events_view = ft.Column(spacing=10, scroll=ft.ScrollMode.AUTO)
     resources_view = ft.Column(spacing=10, scroll=ft.ScrollMode.AUTO)
 
-    # ---------------- Dashboard ----------------
+    # ---------------- Dashboard 
     def refresh_dashboard():
         dashboard_view.controls.clear()
         events=db.list_events()
@@ -805,7 +805,7 @@ def main(page: ft.Page):
         expand=True,
     )
     
-    # ---------------- Layout ----------------
+    #  Layout 
     content=ft.Container(expand=True,padding=15)
     nav=ft.NavigationRail(
         selected_index=0,

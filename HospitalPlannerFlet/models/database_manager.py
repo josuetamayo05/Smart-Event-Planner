@@ -53,7 +53,7 @@ class DatabaseManager:
         threading.Thread(target=self.save,daemon=True).start()
 
 
-    # ---------- backup / import / export
+    #  backup / import / export
     def backup(self,folder:str="backups")->str:
         with self._lock:
             os.makedirs(folder,exist_ok=True)
@@ -73,7 +73,7 @@ class DatabaseManager:
                 self.data=json.load(f)
             self.save()
 
-    # ---------- Resources ----------
+    #  Resources 
 
     def list_resources(self)->List[Dict[str,Any]]:
         return list(self.data.get("resources",[]))
@@ -100,7 +100,7 @@ class DatabaseManager:
             self.data["resources"]=[r for r in resources if r.get("id")!=resource_id]
             self.save_async()
     
-    # ---------- Events ----------
+    #  Events 
     def list_events(self)->List[Dict[str,Any]]:
         return list(self.data.get("events",[]))
     

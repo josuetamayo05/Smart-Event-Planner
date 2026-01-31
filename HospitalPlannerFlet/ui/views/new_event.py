@@ -27,7 +27,7 @@ class NewEventView:
                 self.type_code_by_label[label]=code
                 flat_options.append(ft.dropdown.Option(key=code,text=label))
 
-        # Estilo base para inputs (solo diseño)
+        # Estilo base para inputs 
         base_tf_kwargs = dict(
             border_color=prime_color,
             color="black",
@@ -175,7 +175,7 @@ class NewEventView:
                 ),
             )
 
-        # Header superior (solo diseño)
+        # Header superior 
         header = ft.Container(
             padding=18,
             border_radius=22,
@@ -228,7 +228,7 @@ class NewEventView:
             ),
         )
 
-        # Contenedor de validación (solo diseño)
+        # Contenedor de validación 
         validation_box = ft.Container(
             padding=12,
             border_radius=16,
@@ -244,7 +244,7 @@ class NewEventView:
             ),
         )
 
-        # Lista de recursos (solo diseño)
+        # Lista de recursos 
         resources_box = ft.Container(
             padding=10,
             border_radius=16,
@@ -266,7 +266,7 @@ class NewEventView:
             ),
         )
 
-        # Panel de búsqueda inteligente (solo diseño)
+        # Panel de búsqueda inteligente 
         smart_box = ft.Column(
             [
                 self.duration_tf,
@@ -286,7 +286,7 @@ class NewEventView:
             spacing=10,
         )
 
-        # Botón guardar (solo diseño)
+        # Botón guardar 
         save_btn = ft.ElevatedButton(
             "Guardar",
             icon=ft.Icons.SAVE_OUTLINED,
@@ -420,12 +420,12 @@ class NewEventView:
             
             cb.on_change=on_check_change
 
-            # layout por fila: checkbox + (unidades si aplica)
+            # layout por fila: checkbox + unidades si aplica
             row_controls = [ft.Container(cb, expand=True)]
             if units_dd is not None:
                 row_controls.append(units_dd)
 
-            # Fila con estilo suave (solo diseño)
+            # Fila con estilo suave 
             self.resources_column.controls.append(
                 ft.Container(
                     padding=ft.padding.symmetric(horizontal=10, vertical=8),
@@ -537,7 +537,7 @@ class NewEventView:
         for slot in results:
             res_names = ", ".join(r.name for r in slot.resources)
 
-            # Tarjeta de slot (solo diseño)
+            # Tarjeta de slot 
             self.slots_column.controls.append(
                 ft.Container(
                     padding=14,
