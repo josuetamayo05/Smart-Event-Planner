@@ -156,7 +156,7 @@ def main(page: ft.Page):
             ],
             spacing=10,
             expand=True,
-        )
+        )    
 
         search_view=None
 

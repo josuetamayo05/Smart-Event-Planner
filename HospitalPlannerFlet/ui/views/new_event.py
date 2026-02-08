@@ -1,4 +1,5 @@
 from __future__ import annotations
+import calendar
 import flet as ft
 from datetime import date, timedelta
 from uuid import uuid4
@@ -136,8 +137,57 @@ class NewEventView:
             ),
         )
 
+        self.save_btn = ft.ElevatedButton(
+            "Guardar",
+            icon=ft.Icons.SAVE_OUTLINED,
+            bgcolor=prime_color,
+            color="white",
+            on_click=self.on_save,
+            style=ft.ButtonStyle(
+                shape=ft.RoundedRectangleBorder(radius=14),
+                padding=ft.padding.symmetric(horizontal=14, vertical=10),
+            ),
+        )
+
+        self.repeat_dd=ft.Dropdown(
+            label="Repetir",
+            value="none",
+            options=[
+                ft.dropdown.Option(key="none",text="No repetir"),
+                ft.dropdown.Option(key="daily",text="Diario"),
+                ft.dropdown.Option(key="weekly",text="Semanal"),
+                ft.dropdown.Option(key="monthly",text="Mensual"),
+            ],
+            border_color=prime_color,
+            color="black",
+            bgcolor=ft.Colors.WHITE
+        )
+
+        self.repeat_count_tf=ft.TextField(
+            label="Ocurrencias",
+            value="5",
+            keyboard_type=ft.KeyboardType.NUMBER,
+            border_color=prime_color,
+            color="black",
+            bgcolor=ft.Colors.WHITE,
+            filled=True,
+            border_radius=14,            
+        )
+
+        self.save_recurring_btn=ft.ElevatedButton(
+            "Guardar recurrente",
+            icon=ft.Icons.REPEAT,
+            bgcolor=sec_color,
+            color="white",
+            on_click=self.on_save_recurring,
+            style=ft.ButtonStyle(
+                shape=ft.RoundedRectangleBorder(radius=14),
+                padding=ft.padding.symmetric(horizontal=14, vertical=10),
+            ),
+        )
+
         #helper
-        def section(title: str, content: ft.Control):
+        def section(title: str, content: ft.Control, actions: list[ft.Control] | None = None):
             return ft.Container(
                 padding=16,
                 border_radius=18,
@@ -154,19 +204,26 @@ class NewEventView:
                 content=ft.Column(
                     [
                         ft.Row(
-                            spacing=10,
+                            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                             vertical_alignment=ft.CrossAxisAlignment.CENTER,
                             controls=[
-                                ft.Container(
-                                    width=34,
-                                    height=34,
-                                    border_radius=14,
-                                    bgcolor=white_color,
-                                    border=ft.border.all(1, ft.Colors.GREY_200),
-                                    alignment=ft.Alignment(0, 0),
-                                    content=ft.Icon(ft.Icons.CIRCLE, color=prime_color, size=10),
+                                ft.Row(
+                                    spacing=10,
+                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                    controls=[
+                                        ft.Container(
+                                            width=34,
+                                            height=34,
+                                            border_radius=14,
+                                            bgcolor=white_color,
+                                            border=ft.border.all(1, ft.Colors.GREY_200),
+                                            alignment=ft.Alignment(0, 0),
+                                            content=ft.Icon(ft.Icons.CIRCLE, color=prime_color, size=10),
+                                        ),
+                                        ft.Text(title, size=14, weight=ft.FontWeight.W_700, color=prime_color),
+                                    ],
                                 ),
-                                ft.Text(title, size=14, weight=ft.FontWeight.W_700, color=prime_color),
+                                ft.Row(spacing=8, controls=actions or []),
                             ],
                         ),
                         content,
@@ -286,23 +343,11 @@ class NewEventView:
             spacing=10,
         )
 
-        # Botón guardar 
-        save_btn = ft.ElevatedButton(
-            "Guardar",
-            icon=ft.Icons.SAVE_OUTLINED,
-            bgcolor=prime_color,
-            color="white",
-            on_click=self.on_save,
-            style=ft.ButtonStyle(
-                shape=ft.RoundedRectangleBorder(radius=14),
-                padding=ft.padding.symmetric(horizontal=18, vertical=12),
-            ),
-        )
-
-        form_panel = ft.Column(
-            [
+        form_panel = ft.ListView(
+            controls=[
                 header,
-                section("Datos del evento",
+                section(
+                    "Datos del evento",
                     ft.Column(
                         [
                             self.name_tf,
@@ -315,24 +360,29 @@ class NewEventView:
                                 vertical_alignment=ft.CrossAxisAlignment.START,
                             ),
                             ft.Row([self.date_tf, self.start_tf, self.end_tf]),
+
+                            ft.Row(
+                                controls=[
+                                    ft.Container(self.repeat_dd, expand=True),
+                                    ft.Container(self.repeat_count_tf, width=160),
+                                ],
+                                spacing=10,
+                                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                            ),
+                            
                             validation_box,
                         ],
                         spacing=10,
                     ),
+                    actions=[self.save_btn, self.save_recurring_btn],
                 ),
-
-                section("Recursos (elige el fijo, ej: OR1)", resources_box,
-                ),
-                section("Búsqueda inteligente (autofill)",
-                    smart_box,
-                ),
-
-                save_btn,
+                section("Recursos (elige el fijo, ej: OR1)", resources_box),
+                section("Búsqueda inteligente (autofill)", smart_box),
             ],
-            scroll=ft.ScrollMode.AUTO,
-            expand=True,
             spacing=12,
+            expand=True,
         )
+
 
         self.view=form_panel
 
@@ -347,7 +397,6 @@ class NewEventView:
             self.quick_validate(etype=code)
         else:
             pass
-        print("e.data:", e.data, "e.control.value:", e.control.value, "self.type_tf.value:", self.type_tf.value)
         
 
     def set_times(self, date_iso: str, start_hhmm: str, end_hhmm: str):
@@ -482,6 +531,7 @@ class NewEventView:
         
 
         self.page.update()
+            
 
     def on_find_slots(self, _):
         self.slots_column.controls.clear()
@@ -599,6 +649,99 @@ class NewEventView:
 
         self.page.update()
 
+    def _add_months(self, dt, months: int):
+        y = dt.year + (dt.month - 1 + months) // 12
+        m = (dt.month - 1 + months) % 12 + 1
+        d = min(dt.day, calendar.monthrange(y, m)[1])
+        return dt.replace(year=y, month=m, day=d)
+
+    def on_save_recurring(self, _):
+        try:
+            start_dt = parse_dt(self.date_tf.value, self.start_tf.value)
+            end_dt = parse_dt(self.date_tf.value, self.end_tf.value)
+        except Exception:
+            snack(self.page, "Fecha u hora inválida.")
+            return
+
+        if not (self.name_tf.value or "").strip():
+            snack(self.page, "El nombre es obligatorio.")
+            return
+
+        if end_dt <= start_dt:
+            snack(self.page, "Hora fin debe ser posterior a inicio.")
+            return
+
+        if not self.state.selected_resource_ids:
+            snack(self.page, "Selecciona al menos un recurso.")
+            return
+
+        etype = str(self.type_tf.value or "").strip()
+        if not etype:
+            snack(self.page, "Selecciona un tipo de evento.")
+            return
+
+        freq = str(self.repeat_dd.value or "none").strip()
+        if freq == "none":
+            snack(self.page, "Selecciona Diario/Semanal/Mensual para usar Guardar recurrente.")
+            return
+
+        try:
+            n = int((self.repeat_count_tf.value or "1").strip())
+        except Exception:
+            snack(self.page, "Ocurrencias inválidas.")
+            return
+
+        if n < 1:
+            snack(self.page, "Ocurrencias debe ser >= 1.")
+            return
+
+        duration = end_dt - start_dt
+
+        events_to_create = []
+        conflicts = []
+
+        for i in range(n):
+            if freq == "daily":
+                s = start_dt + timedelta(days=i)
+            elif freq == "weekly":
+                s = start_dt + timedelta(weeks=i)
+            elif freq == "monthly":
+                s = self._add_months(start_dt, i)
+            else:
+                snack(self.page, "Recurrencia no soportada.")
+                return
+
+            e = s + duration
+
+            ev = Event(
+                id=str(uuid4()),
+                name=self.name_tf.value.strip(),
+                description="",
+                event_type=etype,
+                start=s,
+                end=e,
+                resource_ids=list(self.state.selected_resource_ids),
+                resource_units=dict(self.state.resource_units),
+            )
+
+            violations = self.scheduler.validate_event(ev)
+            if violations:
+                conflicts.append(f"{i+1}) {s.strftime('%Y-%m-%d %H:%M')} → {violations[0].message}")
+            else:
+                events_to_create.append(ev)
+
+        # Todo o nada si hay conflictos no guardo ninguno y te muestro cuales fallan
+        if conflicts:
+            show_dialog(self.page, "Conflictos en recurrencia", "\n".join(f"• {c}" for c in conflicts))
+            return
+
+        for ev in events_to_create:
+            self.db.upsert_event(ev.to_dict())
+
+        show_dialog(self.page, "Éxito", f"Se guardaron {len(events_to_create)} ocurrencias.")
+        self.on_any_change()
+        self.reset_form()
+
     def reset_form(self):
         self.name_tf.value = ""
         self.type_tf.value = None
@@ -613,6 +756,8 @@ class NewEventView:
 
         self.state.selected_resource_ids.clear()
         self.state.resource_units.clear()
+        self.repeat_dd.value = "none"
+        self.repeat_count_tf.value = "5"
 
         self.build_resources_checklist(preselected=[], preselected_units={})
         self.page.update()
@@ -659,6 +804,15 @@ class NewEventView:
             return
 
         self.db.upsert_event(ev.to_dict())
-        show_dialog(self.page, "Éxito", "Evento guardado correctamente.")  # más visible que snack
+        show_dialog(self.page, "Éxito", "Evento guardado correctamente.")  
         self.on_any_change()
         self.reset_form()
+
+
+# if __name__ =="__main__":
+#     event=Event(
+#         name="cirug",
+#         description="",
+#         event_type="trasplante",
+       
+#     )

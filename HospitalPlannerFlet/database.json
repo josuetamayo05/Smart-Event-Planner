@@ -542,6 +542,89 @@
       "resource_ids": [
         "dafa"
       ]
+    },
+    {
+      "id": "b6f08ce7-3cba-4170-92e2-7df77653ef32",
+      "name": "Test1",
+      "description": "",
+      "event_type": "trasplante",
+      "start": "2026-02-05T09:00",
+      "end": "2026-02-05T11:00",
+      "resource_ids": [
+        "CAMS"
+      ],
+      "resource_units": {
+        "CAMS": 1
+      }
+    },
+    {
+      "id": "d878c416-05a9-4911-95bd-598fc4dc68fc",
+      "name": "Ejemplo1",
+      "description": "",
+      "event_type": "trasplante",
+      "start": "2026-02-07T09:00",
+      "end": "2026-02-07T11:00",
+      "resource_ids": [
+        "CAD"
+      ],
+      "resource_units": {
+        "CAD": 1
+      }
+    },
+    {
+      "id": "e3662703-cb04-4590-8807-ee386ee8d642",
+      "name": "ejemplo2",
+      "description": "",
+      "event_type": "trasplante",
+      "start": "2026-02-07T09:00",
+      "end": "2026-02-07T11:00",
+      "resource_ids": [
+        "JATA"
+      ]
+    },
+    {
+      "id": "435679bf-68d2-416d-bef4-6e6cc72bd800",
+      "name": "ejemplo2",
+      "description": "",
+      "event_type": "trasplante",
+      "start": "2026-02-08T09:00",
+      "end": "2026-02-08T11:00",
+      "resource_ids": [
+        "JATA"
+      ]
+    },
+    {
+      "id": "4d11cedb-c734-4c3d-8944-d90352026c43",
+      "name": "ejemplo2",
+      "description": "",
+      "event_type": "trasplante",
+      "start": "2026-02-09T09:00",
+      "end": "2026-02-09T11:00",
+      "resource_ids": [
+        "JATA"
+      ]
+    },
+    {
+      "id": "e90ac554-cc55-404c-8eb2-a8be95b44bab",
+      "name": "ejemplo2",
+      "description": "",
+      "event_type": "trasplante",
+      "start": "2026-02-10T09:00",
+      "end": "2026-02-10T11:00",
+      "resource_ids": [
+        "JATA"
+      ]
+    },
+    {
+      "id": "3492e90a-06a1-4470-8f39-98924026931f",
+      "name": "ejemplo2",
+      "description": "",
+      "event_type": "trasplante",
+      "start": "2026-02-11T09:00",
+      "end": "2026-02-11T11:00",
+      "resource_ids": [
+        "JATA"
+      ]
     }
   ],
   "constraints": {

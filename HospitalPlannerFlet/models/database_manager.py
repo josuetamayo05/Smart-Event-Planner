@@ -111,18 +111,7 @@ class DatabaseManager:
         return None
     
     def upsert_event(self,event_dict:Dict[str,Any])->None:
-        """
-        event_dict esperado:
-        {
-          "id": "...",
-          "name": "...",
-          "description": "...",
-          "event_type": "...",
-          "start": "YYYY-MM-DDTHH:MM",
-          "end": "YYYY-MM-DDTHH:MM",
-          "resource_ids": [...]
-        }
-        """
+        
         with self._lock:
             events=self.data.setdefault("events",[])
             eid=event_dict.get("id")

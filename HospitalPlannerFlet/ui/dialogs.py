@@ -1,9 +1,19 @@
 from __future__ import annotations
 import flet as ft
 
-def snack(page: ft.Page,msg:str):
-    page.snack_bar=ft.SnackBar(ft.Text(msg))
-    page.snack_bar.open=True
+_snack_ref = {}
+def snack(page: ft.Page, msg: str, error: bool = False):
+    sb = _snack_ref.get(id(page))
+    if sb is None:
+        sb = ft.SnackBar(
+            ft.Text("", color=ft.Colors.WHITE),
+            bgcolor=ft.Colors.BLACK87,
+        )
+        page.overlay.append(sb)
+        _snack_ref[id(page)] = sb
+    sb.content.value = msg
+    sb.bgcolor = ft.Colors.RED_600 if error else ft.Colors.BLACK87
+    sb.open = True
     page.update()
 
 def open_dialog(page: ft.Page, dlg: ft.AlertDialog):
