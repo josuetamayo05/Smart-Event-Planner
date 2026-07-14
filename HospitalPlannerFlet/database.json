@@ -566,6 +566,76 @@
       "resource_ids": [
         "JATA"
       ]
+    },
+    {
+      "id": "961b4243-682f-48fa-a791-6eda9a41c13d",
+      "name": "Ejemplo4",
+      "description": "",
+      "event_type": "trasplante",
+      "start": "2026-02-08T09:00",
+      "end": "2026-02-08T11:00",
+      "resource_ids": [
+        "CAMARA"
+      ],
+      "resource_units": {
+        "CAMARA": 1
+      }
+    },
+    {
+      "id": "ab449413-0555-4ba9-89d4-6e6b99396c80",
+      "name": "Ejemplo4",
+      "description": "",
+      "event_type": "trasplante",
+      "start": "2026-02-15T09:00",
+      "end": "2026-02-15T11:00",
+      "resource_ids": [
+        "CAMARA"
+      ],
+      "resource_units": {
+        "CAMARA": 1
+      }
+    },
+    {
+      "id": "71d3ae7d-1ce5-4aa1-a4e9-e9ca9046fbe3",
+      "name": "Ejemplo4",
+      "description": "",
+      "event_type": "trasplante",
+      "start": "2026-02-22T09:00",
+      "end": "2026-02-22T11:00",
+      "resource_ids": [
+        "CAMARA"
+      ],
+      "resource_units": {
+        "CAMARA": 1
+      }
+    },
+    {
+      "id": "deaf63df-935c-48fb-9e24-93212273ff79",
+      "name": "Ejemplo4",
+      "description": "",
+      "event_type": "trasplante",
+      "start": "2026-03-01T09:00",
+      "end": "2026-03-01T11:00",
+      "resource_ids": [
+        "CAMARA"
+      ],
+      "resource_units": {
+        "CAMARA": 1
+      }
+    },
+    {
+      "id": "f8009fac-16e5-448f-9148-f038fd847bf8",
+      "name": "Ejemplo4",
+      "description": "",
+      "event_type": "trasplante",
+      "start": "2026-03-08T09:00",
+      "end": "2026-03-08T11:00",
+      "resource_ids": [
+        "CAMARA"
+      ],
+      "resource_units": {
+        "CAMARA": 1
+      }
     }
   ],
   "constraints": {
