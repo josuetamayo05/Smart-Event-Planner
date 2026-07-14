@@ -7,7 +7,6 @@ from models.database_manager import DatabaseManager
 from models.event import Event
 from models.resource import Resource
 from models.constraint import Violation
-from ui.time_utils import parse_dt
 
 def overlaps(s1:datetime, e1:datetime, s2: datetime, e2:datetime) -> bool:
     return s1<e2 and s2<e1
@@ -144,10 +143,6 @@ class Scheduler:
     def validate_event(self, event:Event, description: str=None) -> List[Violation]:
         violations:List[Violation]=[]
 
-        #auto check requisites
-        if description is not None:
-            violations.extend(self._auto_requisites())
-            return violations
         #1 capacities
         violations.extend(self._check_resource_capacity(event))
         #2 co-requisitos
