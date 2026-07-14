@@ -232,7 +232,7 @@ venv\Scripts\python.exe app.py
 
 | Rol | Descripción |
 |-----|-------------|
-| `admin` | Acceso completo al sistema |
+| `admin` | Acceso completo al sistema | Usar user: josue | pasw: admin123
 | `staff` | Acceso a gestión de eventos |
 
 ---
